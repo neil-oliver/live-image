@@ -22,23 +22,28 @@ exports.handler = async (event, context) => {
         .split(':')
         .map((num) => parseInt(num, 10));
 
-    // Generate SVG with bar chart
+    // Adjust SVG dimensions for 500px width
+    const width = 500;
+    const height = 200; // Proportional height
+    const barWidth = 100; // Adjusted bar width
+    const barSpacing = 50; // Space between bars
+
     const svgImage = `
-        <svg width="300" height="150" xmlns="http://www.w3.org/2000/svg">
-            <rect width="300" height="150" fill="white"/>
-            <text x="150" y="20" text-anchor="middle" font-size="14" fill="black">
+        <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+            <rect width="${width}" height="${height}" fill="white"/>
+            <text x="${width / 2}" y="30" text-anchor="middle" font-size="16" fill="black">
                 Current Time: ${hour}:${minute}:${second}
             </text>
-            <rect x="50" y="${150 - (hour / 24) * 100}" width="50" height="${(hour / 24) * 100}" fill="#008080" />
-            <text x="75" y="${150 - (hour / 24) * 100 - 5}" text-anchor="middle" font-size="12" fill="black">
+            <rect x="${barSpacing}" y="${height - (hour / 24) * 150}" width="${barWidth}" height="${(hour / 24) * 150}" fill="#008080" />
+            <text x="${barSpacing + barWidth / 2}" y="${height - (hour / 24) * 150 - 10}" text-anchor="middle" font-size="14" fill="black">
                 Hour
             </text>
-            <rect x="125" y="${150 - (minute / 60) * 100}" width="50" height="${(minute / 60) * 100}" fill="#FFC107" />
-            <text x="150" y="${150 - (minute / 60) * 100 - 5}" text-anchor="middle" font-size="12" fill="black">
+            <rect x="${barSpacing * 2 + barWidth}" y="${height - (minute / 60) * 150}" width="${barWidth}" height="${(minute / 60) * 150}" fill="#FFC107" />
+            <text x="${barSpacing * 2 + barWidth + barWidth / 2}" y="${height - (minute / 60) * 150 - 10}" text-anchor="middle" font-size="14" fill="black">
                 Minute
             </text>
-            <rect x="200" y="${150 - (second / 60) * 100}" width="50" height="${(second / 60) * 100}" fill="#6A1B9A" />
-            <text x="225" y="${150 - (second / 60) * 100 - 5}" text-anchor="middle" font-size="12" fill="black">
+            <rect x="${barSpacing * 3 + barWidth * 2}" y="${height - (second / 60) * 150}" width="${barWidth}" height="${(second / 60) * 150}" fill="#6A1B9A" />
+            <text x="${barSpacing * 3 + barWidth * 2 + barWidth / 2}" y="${height - (second / 60) * 150 - 10}" text-anchor="middle" font-size="14" fill="black">
                 Second
             </text>
         </svg>
