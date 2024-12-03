@@ -1,0 +1,10 @@
+[build]
+  functions = "functions"
+
+[functions]
+  node_bundler = "esbuild" # Use esbuild for bundling sharp
+
+[[redirects]]
+  from = "/current-time.png"
+  to = "/.netlify/functions/current-time"
+  status = 200
