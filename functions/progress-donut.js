@@ -48,9 +48,11 @@ exports.handler = async (event, context) => {
     // Create the progress arc path
     // Special case for 100% - create a complete circle
     let progressPath;
+    let useCircleForProgress = false;
     if (value >= 100) {
-        // For 100%, create a complete circle path
-        progressPath = `M ${centerX + radius} ${centerY} A ${radius} ${radius} 0 1 1 ${centerX + radius - 0.01} ${centerY}`;
+        // For 100%, we'll use a circle element instead of path for perfect alignment
+        useCircleForProgress = true;
+        progressPath = '';
     } else if (progressAngle > 0) {
         progressPath = `M ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2}`;
     } else {
@@ -80,13 +82,23 @@ exports.handler = async (event, context) => {
             />
             
             <!-- Progress arc (colored) -->
-            <path 
-                d="${progressPath}" 
-                fill="none" 
-                stroke="url(#donutGradient)" 
-                stroke-width="${strokeWidth}"
-                stroke-linecap="round"
-            />
+            ${useCircleForProgress ? 
+                `<circle 
+                    cx="${centerX}" 
+                    cy="${centerY}" 
+                    r="${radius}" 
+                    fill="none" 
+                    stroke="url(#donutGradient)" 
+                    stroke-width="${strokeWidth}"
+                />` : 
+                `<path 
+                    d="${progressPath}" 
+                    fill="none" 
+                    stroke="url(#donutGradient)" 
+                    stroke-width="${strokeWidth}"
+                    stroke-linecap="round"
+                />`
+            }
             
             <!-- Percentage text -->
             <text 
@@ -95,7 +107,7 @@ exports.handler = async (event, context) => {
                 text-anchor="middle" 
                 dominant-baseline="middle" 
                 font-family="Arial, sans-serif" 
-                font-size="${Math.round(size * 0.15)}" 
+                font-size="${Math.round(size * 0.18)}" 
                 fill="#000000"
             >
                 ${Math.round(value)}%
