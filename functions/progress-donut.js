@@ -7,6 +7,7 @@ exports.handler = async (event, context) => {
     const color = queryParams.color || '#3B82F6'; // Default blue color
     const size = parseInt(queryParams.size) || 200; // Default size
     const strokeWidth = parseInt(queryParams.strokeWidth) || 20; // Default stroke width
+    const padding = parseInt(queryParams.padding) || 10; // Default padding
     
     // Validate color format (basic hex validation)
     const colorRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
@@ -17,12 +18,12 @@ exports.handler = async (event, context) => {
         };
     }
     
-    // Calculate dimensions
-    const width = size;
-    const height = size;
+    // Calculate dimensions with padding
+    const width = size + (padding * 2);
+    const height = size + (padding * 2);
     const centerX = width / 2;
     const centerY = height / 2;
-    const radius = (Math.min(width, height) - strokeWidth) / 2;
+    const radius = (Math.min(size, size) - strokeWidth) / 2;
     
     // Calculate progress angle (convert percentage to degrees)
     const progressAngle = (value / 100) * 360;
@@ -45,8 +46,16 @@ exports.handler = async (event, context) => {
     const largeArcFlag = progressAngle > 180 ? 1 : 0;
     
     // Create the progress arc path
-    const progressPath = progressAngle > 0 ? 
-        `M ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2}` : '';
+    // Special case for 100% - create a complete circle
+    let progressPath;
+    if (value >= 100) {
+        // For 100%, create a complete circle path
+        progressPath = `M ${centerX + radius} ${centerY} A ${radius} ${radius} 0 1 1 ${centerX + radius - 0.01} ${centerY}`;
+    } else if (progressAngle > 0) {
+        progressPath = `M ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2}`;
+    } else {
+        progressPath = '';
+    }
     
     // Create the background circle path (full circle)
     const backgroundPath = `M ${centerX + radius} ${centerY} A ${radius} ${radius} 0 1 1 ${centerX + radius - 0.01} ${centerY}`;
@@ -87,8 +96,7 @@ exports.handler = async (event, context) => {
                 dominant-baseline="middle" 
                 font-family="Arial, sans-serif" 
                 font-size="${Math.round(size * 0.15)}" 
-                font-weight="bold" 
-                fill="${color}"
+                fill="#000000"
             >
                 ${Math.round(value)}%
             </text>

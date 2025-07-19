@@ -38,18 +38,20 @@ Generates a circular progress chart with donut shape and centered percentage dis
 - `color` (hex color): Progress arc color (default: #3B82F6)
 - `size` (number): Overall size in pixels (default: 200)
 - `strokeWidth` (number): Width of the donut ring (default: 20)
+- `padding` (number): Padding around the donut in pixels (default: 10)
 
 **Example:**
 ```
-/progress-donut.svg?value=70&color=%23FF6B6B&size=300&strokeWidth=30
+/progress-donut.svg?value=70&color=%23FF6B6B&size=300&strokeWidth=30&padding=15
 ```
 
 **Features:**
 - Circular donut design with rounded ends
 - Gradient effect on progress arc
-- Centered percentage text
+- Centered percentage text in black
 - Gray background for remaining progress
-- Customizable size and stroke width
+- Customizable size, stroke width, and padding
+- Properly displays full colored circle at 100%
 
 ### Pill
 
@@ -85,6 +87,7 @@ Generates a pill-shaped element with customizable text and colors.
 - `/progress-donut.svg?value=70` - 70% progress with default blue color
 - `/progress-donut.svg?value=100&color=%2310B981` - Complete green donut
 - `/progress-donut.svg?value=30&color=%23F59E0B&size=300&strokeWidth=25` - Large yellow donut with thick stroke
+- `/progress-donut.svg?value=85&color=%23EF4444&padding=20` - Red donut with extra padding
 
 ### Pill Examples
 - `/pill.svg?text=New&color=%23EF4444` - Red pill with "New" text
