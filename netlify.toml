@@ -5,6 +5,6 @@
   node_bundler = "esbuild" # Use esbuild for bundling sharp
 
 [[redirects]]
-  from = "/progress.png"
+  from = "/progress.svg"
   to = "/.netlify/functions/progress"
   status = 200

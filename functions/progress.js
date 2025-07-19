@@ -1,4 +1,4 @@
-const sharp = require('sharp');
+
 
 exports.handler = async (event, context) => {
     // Parse query parameters
@@ -78,22 +78,18 @@ exports.handler = async (event, context) => {
     `;
 
     try {
-        // Convert the SVG to PNG using sharp
-        const buffer = await sharp(Buffer.from(svgImage)).png().toBuffer();
-
         return {
             statusCode: 200,
             headers: {
-                'Content-Type': 'image/png',
+                'Content-Type': 'image/svg+xml',
                 'Cache-Control': 'public, max-age=300', // Cache for 5 minutes
             },
-            body: buffer.toString('base64'),
-            isBase64Encoded: true, // Required for binary response
+            body: svgImage,
         };
     } catch (error) {
         return {
             statusCode: 500,
-            body: JSON.stringify({ error: 'Failed to generate progress bar image' }),
+            body: JSON.stringify({ error: 'Failed to generate progress bar SVG' }),
         };
     }
 }; 
