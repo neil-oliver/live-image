@@ -107,7 +107,7 @@ exports.handler = async (event, context) => {
                 text-anchor="middle" 
                 dominant-baseline="middle" 
                 font-family="Arial, sans-serif" 
-                font-size="${Math.round(size * 0.18)}" 
+                font-size="${Math.round(size * 0.22)}" 
                 fill="#000000"
             >
                 ${Math.round(value)}%
