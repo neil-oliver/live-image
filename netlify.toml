@@ -5,6 +5,6 @@
   node_bundler = "esbuild" # Use esbuild for bundling sharp
 
 [[redirects]]
-  from = "/current-time.png"
-  to = "/.netlify/functions/current-time"
+  from = "/progress.png"
+  to = "/.netlify/functions/progress"
   status = 200
