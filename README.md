@@ -76,6 +76,42 @@ Generates a pill-shaped element with customizable text and colors.
 - Centered text with professional typography
 - Subtle highlight for depth
 
+### Gradient
+
+Generates color gradients or solid colors based on CSS linear-gradient functionality.
+
+**URL:** `/gradient.svg`
+
+**Parameters:**
+- `colors` (comma-separated hex colors): One or more colors for the gradient (default: #3B82F6)
+- `direction` (string): Gradient direction (default: "to right")
+- `width` (number): Image width in pixels (default: 500)
+- `height` (number): Image height in pixels (default: 300)
+- `stops` (comma-separated percentages): Optional stop positions for colors (default: evenly distributed)
+
+**Directions:**
+- `to right` - Horizontal left to right
+- `to left` - Horizontal right to left
+- `to bottom` - Vertical top to bottom
+- `to top` - Vertical bottom to top
+- `to bottom right` - Diagonal top-left to bottom-right
+- `to bottom left` - Diagonal top-right to bottom-left
+- `to top right` - Diagonal bottom-left to top-right
+- `to top left` - Diagonal bottom-right to top-left
+- `45deg` - Custom angle (0-360 degrees)
+
+**Example:**
+```
+/gradient.svg?colors=%23FF6B6B,%23FECA57,%2310B981&direction=to%20bottom&width=800&height=400
+```
+
+**Features:**
+- Support for single colors (solid) or multiple colors (gradient)
+- CSS linear-gradient compatible directions
+- Custom stop positions for precise control
+- Customizable dimensions
+- Angle-based gradients (e.g., "45deg")
+
 ## Usage Examples
 
 ### Progress Bar Examples
@@ -93,6 +129,13 @@ Generates a pill-shaped element with customizable text and colors.
 - `/pill.svg?text=New&color=%23EF4444` - Red pill with "New" text
 - `/pill.svg?text=Warning&color=%23F59E0B&textColor=%23000000` - Yellow warning pill with black text
 - `/pill.svg?text=Completed&color=%2310B981` - Green success pill
+
+### Gradient Examples
+- `/gradient.svg?colors=%23FF6B6B` - Solid red color
+- `/gradient.svg?colors=%23FF6B6B,%23FECA57` - Red to yellow gradient
+- `/gradient.svg?colors=%23FF6B6B,%23FECA57,%2310B981&direction=to%20bottom` - Three-color vertical gradient
+- `/gradient.svg?colors=%233B82F6,%23EF4444&direction=45deg` - Blue to red diagonal gradient
+- `/gradient.svg?colors=%23F59E0B,%23EF4444&stops=0%25,80%25&width=800&height=200` - Custom stop positions
 
 ## Color Format
 
@@ -122,6 +165,7 @@ To run locally:
    - `http://localhost:8888/progress-bar.svg`
    - `http://localhost:8888/progress-donut.svg`
    - `http://localhost:8888/pill.svg`
+   - `http://localhost:8888/gradient.svg`
 
 ## Technical Details
 

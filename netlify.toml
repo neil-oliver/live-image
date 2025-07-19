@@ -18,3 +18,8 @@
   from = "/pill.svg"
   to = "/.netlify/functions/pill"
   status = 200
+
+[[redirects]]
+  from = "/gradient.svg"
+  to = "/.netlify/functions/gradient"
+  status = 200
