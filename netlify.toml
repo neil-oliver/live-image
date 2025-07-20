@@ -23,3 +23,8 @@
   from = "/gradient.svg"
   to = "/.netlify/functions/gradient"
   status = 200
+
+[[redirects]]
+  from = "/gradient.png"
+  to = "/.netlify/functions/gradient"
+  status = 200

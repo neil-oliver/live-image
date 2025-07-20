@@ -1,4 +1,9 @@
+const sharp = require('sharp');
+
 exports.handler = async (event, context) => {
+    // Check if PNG is requested based on the path
+    const isPngRequest = event.path && event.path.endsWith('.png');
+    
     // Parse query parameters
     const queryParams = event.queryStringParameters || {};
     
@@ -139,18 +144,36 @@ exports.handler = async (event, context) => {
     `;
 
     try {
-        return {
-            statusCode: 200,
-            headers: {
-                'Content-Type': 'image/svg+xml',
-                'Cache-Control': 'public, max-age=300', // Cache for 5 minutes
-            },
-            body: svgImage,
-        };
+        if (isPngRequest) {
+            // Convert SVG to PNG using sharp
+            const pngBuffer = await sharp(Buffer.from(svgImage))
+                .png()
+                .toBuffer();
+            
+            return {
+                statusCode: 200,
+                headers: {
+                    'Content-Type': 'image/png',
+                    'Cache-Control': 'public, max-age=300', // Cache for 5 minutes
+                },
+                body: pngBuffer.toString('base64'),
+                isBase64Encoded: true,
+            };
+        } else {
+            // Return SVG as before
+            return {
+                statusCode: 200,
+                headers: {
+                    'Content-Type': 'image/svg+xml',
+                    'Cache-Control': 'public, max-age=300', // Cache for 5 minutes
+                },
+                body: svgImage,
+            };
+        }
     } catch (error) {
         return {
             statusCode: 500,
-            body: JSON.stringify({ error: 'Failed to generate gradient SVG' }),
+            body: JSON.stringify({ error: 'Failed to generate gradient image' }),
         };
     }
 }; 
