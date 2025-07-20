@@ -20,13 +20,13 @@ exports.handler = async (event, context) => {
     // Parse colors (comma-separated)
     const colorArray = colors.split(',').map(c => c.trim());
     
-    // Validate colors (basic hex validation)
-    const colorRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+    // Validate colors (hex validation with optional alpha)
+    const colorRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})([A-Fa-f0-9]{2})?$/;
     for (const color of colorArray) {
         if (!colorRegex.test(color)) {
             return {
                 statusCode: 400,
-                body: JSON.stringify({ error: 'Invalid color format. Use hex colors (e.g., #3B82F6)' }),
+                body: JSON.stringify({ error: 'Invalid color format. Use hex colors (e.g., #3B82F6 or #3B82F680 for transparency)' }),
             };
         }
     }
@@ -97,10 +97,26 @@ exports.handler = async (event, context) => {
     
     const coords = getGradientCoordinates(direction);
     
-    // Generate SVG gradient stops
-    const gradientStops = colorArray.map((color, index) => 
-        `<stop offset="${stopArray[index]}" style="stop-color:${color};stop-opacity:1" />`
-    ).join('\n                ');
+    // Generate SVG gradient stops with transparency support
+    const gradientStops = colorArray.map((color, index) => {
+        // Parse color and alpha
+        let hexColor = color;
+        let opacity = 1;
+        
+        // Check if color has alpha channel (8 characters total)
+        if (color.length === 9) {
+            hexColor = color.substring(0, 7);
+            const alphaHex = color.substring(7, 9);
+            opacity = parseInt(alphaHex, 16) / 255;
+        } else if (color.length === 4) {
+            // Handle 3-digit hex with alpha
+            hexColor = color.substring(0, 4);
+            const alphaHex = color.substring(3, 4) + color.substring(3, 4);
+            opacity = parseInt(alphaHex, 16) / 255;
+        }
+        
+        return `<stop offset="${stopArray[index]}" style="stop-color:${hexColor};stop-opacity:${opacity}" />`;
+    }).join('\n                ');
     
     const svgImage = `
         <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">

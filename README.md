@@ -111,6 +111,7 @@ Generates color gradients or solid colors based on CSS linear-gradient functiona
 - Custom stop positions for precise control
 - Customizable dimensions
 - Angle-based gradients (e.g., "45deg")
+- Transparency support with alpha channel
 
 ## Usage Examples
 
@@ -136,12 +137,22 @@ Generates color gradients or solid colors based on CSS linear-gradient functiona
 - `/gradient.svg?colors=%23FF6B6B,%23FECA57,%2310B981&direction=to%20bottom` - Three-color vertical gradient
 - `/gradient.svg?colors=%233B82F6,%23EF4444&direction=45deg` - Blue to red diagonal gradient
 - `/gradient.svg?colors=%23F59E0B,%23EF4444&stops=0%25,80%25&width=800&height=200` - Custom stop positions
+- `/gradient.svg?colors=%23FF6B6B80,%23FECA57` - Red with 50% transparency to yellow
+- `/gradient.svg?colors=%233B82F600,%233B82F6FF` - Transparent to opaque blue gradient
 
 ## Color Format
 
 All color parameters accept hex color codes:
 - 6-digit: `#3B82F6`
 - 3-digit: `#F00` (shorthand for `#FF0000`)
+- 8-digit: `#3B82F680` (6-digit + 2-digit alpha for transparency)
+- 4-digit: `#F008` (3-digit + 1-digit alpha for transparency)
+
+**Transparency Examples:**
+- `#FF0000` - Fully opaque red
+- `#FF000080` - 50% transparent red
+- `#FF000000` - Fully transparent red
+- `#FF0000FF` - Fully opaque red
 
 ## Deployment
 
