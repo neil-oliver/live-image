@@ -1,9 +1,4 @@
-const sharp = require('sharp');
-
 exports.handler = async (event, context) => {
-    // Check if PNG is requested based on the path
-    const isPngRequest = event.path && event.path.endsWith('.png');
-    
     // Parse query parameters
     const queryParams = event.queryStringParameters || {};
     
@@ -59,16 +54,13 @@ exports.handler = async (event, context) => {
     const getGradientCoordinates = (dir) => {
         switch (dir.toLowerCase()) {
             case 'to right':
-            case 'to right':
                 return { x1: '0%', y1: '0%', x2: '100%', y2: '0%' };
             case 'to left':
                 return { x1: '100%', y1: '0%', x2: '0%', y2: '0%' };
             case 'to bottom':
-            case 'to bottom':
                 return { x1: '0%', y1: '0%', x2: '0%', y2: '100%' };
             case 'to top':
                 return { x1: '0%', y1: '100%', x2: '0%', y2: '0%' };
-            case 'to bottom right':
             case 'to bottom right':
                 return { x1: '0%', y1: '0%', x2: '100%', y2: '100%' };
             case 'to bottom left':
@@ -144,32 +136,14 @@ exports.handler = async (event, context) => {
     `;
 
     try {
-        if (isPngRequest) {
-            // Convert SVG to PNG using sharp
-            const pngBuffer = await sharp(Buffer.from(svgImage))
-                .png()
-                .toBuffer();
-            
-            return {
-                statusCode: 200,
-                headers: {
-                    'Content-Type': 'image/png',
-                    'Cache-Control': 'public, max-age=300', // Cache for 5 minutes
-                },
-                body: pngBuffer.toString('base64'),
-                isBase64Encoded: true,
-            };
-        } else {
-            // Return SVG as before
-            return {
-                statusCode: 200,
-                headers: {
-                    'Content-Type': 'image/svg+xml',
-                    'Cache-Control': 'public, max-age=300', // Cache for 5 minutes
-                },
-                body: svgImage,
-            };
-        }
+        return {
+            statusCode: 200,
+            headers: {
+                'Content-Type': 'image/svg+xml',
+                'Cache-Control': 'public, max-age=300', // Cache for 5 minutes
+            },
+            body: svgImage,
+        };
     } catch (error) {
         return {
             statusCode: 500,

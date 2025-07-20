@@ -12,12 +12,15 @@ Generates a horizontal progress bar with customizable appearance.
 
 **Parameters:**
 - `value` (number, 0-100): Progress percentage (default: 50)
-- `color` (hex color): Progress bar color (default: #3B82F6)
+- `color` (hex color or comma-separated list): Progress bar color(s) (default: #3B82F6)
+  - Single color: `#3B82F6`
+  - Multiple colors: `#FF0000,#00FF00,#0000FF` (creates gradient based on progress value)
 - `aspectRatio` (number): Width-to-height ratio (default: 4)
 
 **Example:**
 ```
 /progress-bar.svg?value=75&color=%23FF6B6B&aspectRatio=3
+/progress-bar.svg?value=50&color=%23FF0000,%2300FF00&aspectRatio=4
 ```
 
 **Features:**
@@ -35,7 +38,9 @@ Generates a circular progress chart with donut shape and centered percentage dis
 
 **Parameters:**
 - `value` (number, 0-100): Progress percentage (default: 50)
-- `color` (hex color): Progress arc color (default: #3B82F6)
+- `color` (hex color or comma-separated list): Progress arc color(s) (default: #3B82F6)
+  - Single color: `#3B82F6`
+  - Multiple colors: `#FF0000,#00FF00,#0000FF` (creates gradient based on progress value)
 - `size` (number): Overall size in pixels (default: 200)
 - `strokeWidth` (number): Width of the donut ring (default: 20)
 - `padding` (number): Padding around the donut in pixels (default: 10)
@@ -43,6 +48,7 @@ Generates a circular progress chart with donut shape and centered percentage dis
 **Example:**
 ```
 /progress-donut.svg?value=70&color=%23FF6B6B&size=300&strokeWidth=30&padding=15
+/progress-donut.svg?value=50&color=%23FF0000,%2300FF00&size=250&strokeWidth=25
 ```
 
 **Features:**
@@ -119,12 +125,16 @@ Generates color gradients or solid colors based on CSS linear-gradient functiona
 - `/progress-bar.svg?value=25` - 25% progress with default blue color
 - `/progress-bar.svg?value=100&color=%2310B981` - Complete green progress bar
 - `/progress-bar.svg?value=50&color=%23F59E0B&aspectRatio=2` - Yellow progress bar with 2:1 aspect ratio
+- `/progress-bar.svg?value=75&color=%23FF0000,%2300FF00` - Red to green gradient, 75% progress (greenish)
+- `/progress-bar.svg?value=30&color=%23FF0000,%23FFFF00,%2300FF00` - Red to yellow to green gradient, 30% progress (reddish-yellow)
 
 ### Progress Donut Examples
 - `/progress-donut.svg?value=70` - 70% progress with default blue color
 - `/progress-donut.svg?value=100&color=%2310B981` - Complete green donut
 - `/progress-donut.svg?value=30&color=%23F59E0B&size=300&strokeWidth=25` - Large yellow donut with thick stroke
 - `/progress-donut.svg?value=85&color=%23EF4444&padding=20` - Red donut with extra padding
+- `/progress-donut.svg?value=60&color=%23FF0000,%2300FF00` - Red to green gradient, 60% progress (greenish)
+- `/progress-donut.svg?value=40&color=%23FF0000,%23FFFF00,%2300FF00` - Red to yellow to green gradient, 40% progress (yellowish)
 
 ### Pill Examples
 - `/pill.svg?text=New&color=%23EF4444` - Red pill with "New" text
