@@ -11,7 +11,7 @@ exports.handler = async (event, context) => {
     const description = queryParams.description || queryParams.title || queryParams.job || '';
     
     // Styling parameters
-    const aspectRatio = queryParams.ratio || '16:9'; // Default aspect ratio
+    const aspectRatio = queryParams.ratio || '5:1'; // Default aspect ratio
     const padding = parseInt(queryParams.padding) || 10; // Default padding
     const bgColor = queryParams.bgColor || queryParams.bg || 'transparent'; // Background color (transparent by default)
     const primaryColor = queryParams.primaryColor || queryParams.primary || '#3B82F6'; // Primary accent color
