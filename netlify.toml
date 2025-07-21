@@ -28,3 +28,8 @@
   from = "/gradient.png"
   to = "/.netlify/functions/gradient"
   status = 200
+
+[[redirects]]
+  from = "/datetime.svg"
+  to = "/.netlify/functions/datetime"
+  status = 200
