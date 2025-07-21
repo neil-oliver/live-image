@@ -166,6 +166,7 @@ Generates a modern user profile card with circular avatar, name, email, and desc
 - `description` (string): Job title or description (aliases: `title`, `job`)
 - `image` (string): Image URL for avatar (alias: `avatar`)
 - `ratio` (string): Aspect ratio (default: "16:9", format: "width:height")
+- `padding` (number): Padding around the card (default: 24, range: 0-100)
 - `bgColor` (hex color or "transparent"): Background color (alias: `bg`, default: transparent)
 - `primaryColor` (hex color): Primary accent color (alias: `primary`, default: #3B82F6)
 - `textColor` (hex color): Main text color (alias: `text`, default: #1F2937)
@@ -233,6 +234,7 @@ Generates a modern user profile card with circular avatar, name, email, and desc
 - `/user-card.svg?name=Sarah%20Wilson&email=sarah@design.com&description=UI/UX%20Designer&ratio=4:3&primary=%23FF6B6B` - Custom aspect ratio and colors
 - `/user-card.svg?name=Mike%20Chen&email=mike@tech.com&description=Full%20Stack%20Developer&bg=%23F8F9FA&text=%232D3748` - Custom background and text colors
 - `/user-card.svg?name=Lisa%20Wang&email=lisa@design.com&description=Creative%20Director` - Transparent background (default)
+- `/user-card.svg?name=Tom%20Brown&email=tom@startup.com&description=CTO&padding=10` - Reduced padding
 
 ## Color Format
 

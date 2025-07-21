@@ -12,10 +12,19 @@ exports.handler = async (event, context) => {
     
     // Styling parameters
     const aspectRatio = queryParams.ratio || '16:9'; // Default aspect ratio
+    const padding = parseInt(queryParams.padding) || 24; // Default padding
     const bgColor = queryParams.bgColor || queryParams.bg || 'transparent'; // Background color (transparent by default)
     const primaryColor = queryParams.primaryColor || queryParams.primary || '#3B82F6'; // Primary accent color
     const textColor = queryParams.textColor || queryParams.text || '#1F2937'; // Text color
     const subtextColor = queryParams.subtextColor || queryParams.subtext || '#6B7280'; // Subtitle text color
+    
+    // Validate padding
+    if (padding < 0 || padding > 100) {
+        return {
+            statusCode: 400,
+            body: JSON.stringify({ error: 'Padding must be between 0 and 100 pixels' }),
+        };
+    }
     
     // Validate color formats (allow 'transparent' for background)
     const colorRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
@@ -53,7 +62,6 @@ exports.handler = async (event, context) => {
     }
     
     // Layout calculations
-    const padding = 24;
     const imageSize = Math.min(height - (padding * 2), 100); // Max 100px circle (reduced from 120px)
     const imageX = padding;
     const imageY = (height - imageSize) / 2;
