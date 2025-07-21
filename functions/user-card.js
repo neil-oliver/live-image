@@ -83,22 +83,23 @@ exports.handler = async (event, context) => {
     const emailFontSize = Math.min(16, contentWidth / 18);
     const descFontSize = Math.min(14, contentWidth / 20);
     
-    // Calculate total content height for vertical centering
-    const gap = 4; // px
-    const textBlock = nameFontSize + emailFontSize + (description ? descFontSize : 0) + (description ? 2*gap : gap);
-    const totalHeight = Math.max(imageSize, textBlock);
+    // -----------------------------------------------------------------------------
+    //  Text‑block sizing
+    // -----------------------------------------------------------------------------
+    const gap = 4; // vertical gap between lines (px)
+    const nameH = nameFontSize;                      // approx. line‑height per line
+    const emailH = emailFontSize;
+    const descH = description ? descFontSize : 0;
+    const textBlockH = nameH + emailH + descH + gap * (description ? 2 : 1);
+    const textTop = (height - textBlockH) / 2;       // top of the text block
     
     // Center the entire content area (image + text) vertically
+    const totalHeight = Math.max(imageSize, textBlockH);
     const contentAreaStartY = (height - totalHeight) / 2;
     
-    // Position image and text relative to the centered content area
+    // Position image relative to the centered content area
     const imageY = contentAreaStartY + (totalHeight - imageSize) / 2;
     const imageCenterY = imageY + imageSize / 2;
-    
-    // Vertical centering calculations for text
-    const startY = contentAreaStartY + (totalHeight - textBlock) / 2 + nameFontSize;
-    const emailY = startY + gap + emailFontSize;
-    const descY = emailY + (description ? gap + descFontSize : 0);
     
     // Generate image element (with fallback to placeholder)
     let imageElement = '';
@@ -172,8 +173,12 @@ exports.handler = async (event, context) => {
     const displayDesc = truncateText(description, descMaxChars);
     
     const shadowId = `shadow-${Math.random().toString(36).substr(2, 9)}`;
+    
+    // -----------------------------------------------------------------------------
+    //  SVG
+    // -----------------------------------------------------------------------------
     const svgImage = `
-        <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+        <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
             <defs>
                 <style>
                     .card-bg{fill:${bgColor}}
@@ -208,11 +213,12 @@ exports.handler = async (event, context) => {
             
             ${imageElement}
             
-            <text x="${contentX}" y="${startY}" dominant-baseline="text-before-edge" class="name">${escapeXML(displayName)}</text>
-            <text x="${contentX}" y="${emailY}" dominant-baseline="text-before-edge" class="email">${escapeXML(displayEmail)}</text>
-            ${description
-                ? `<text x="${contentX}" y="${descY}" dominant-baseline="text-before-edge" class="desc">${escapeXML(displayDesc)}</text>`
-                : ''}
+            <!-- Text block -->
+            <g transform="translate(${contentX}, ${textTop})">
+                <text y="${nameH}" class="name">${escapeXML(displayName)}</text>
+                <text y="${nameH + gap + emailH}" class="email">${escapeXML(displayEmail)}</text>
+                ${description ? `<text y="${nameH + gap + emailH + gap + descH}" class="desc">${escapeXML(displayDesc)}</text>` : ''}
+            </g>
         </svg>
     `;
 
