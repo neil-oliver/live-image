@@ -36,12 +36,17 @@ exports.handler = async (event, context) => {
     
     try {
         // Parse timestamp input
-        const timestamp = parseInt(timestampInput);
+        let timestamp = parseInt(timestampInput);
         if (isNaN(timestamp) || timestamp < 0) {
             return {
                 statusCode: 400,
                 body: JSON.stringify({ error: 'Invalid timestamp. Must be a positive integer' }),
             };
+        }
+        
+        // Convert seconds to milliseconds if timestamp is in seconds (10 digits or less)
+        if (timestamp.toString().length <= 10) {
+            timestamp = timestamp * 1000;
         }
         
         // Generate SVG
@@ -99,10 +104,10 @@ function createCalendarClockSVG(timestamp = Date.now(), opts = {}) {
     const clockCY = s - strokeW / 2 - clockOverlap;  // bottom edge with overlap
 
     // ---------- date / time parts ----------
-    const monthTxt = d.toLocaleString("en-US", { month: "short" }).toUpperCase();
-    const dayTxt = d.getDate().toString();
-    const hours = d.getHours();
-    const mins = d.getMinutes();
+    const monthTxt = d.toLocaleString("en-US", { month: "short", timeZone: "UTC" }).toUpperCase();
+    const dayTxt = d.getUTCDate().toString();
+    const hours = d.getUTCHours();
+    const mins = d.getUTCMinutes();
 
     // angles for hands (0° at 12 o'clock, clockwise)
     const minDeg = mins * 6;                                     // 360 / 60
