@@ -48,16 +48,24 @@ exports.handler = async (event, context) => {
     const ratioWidth = parseInt(ratioMatch[1]);
     const ratioHeight = parseInt(ratioMatch[2]);
     
-    // Calculate dimensions based on aspect ratio (base width of 400px)
-    const baseWidth = 400;
-    const width = baseWidth;
-    const height = Math.round((baseWidth * ratioHeight) / ratioWidth);
+    // Calculate dimensions based on aspect ratio
+    // For very wide aspect ratios, use a smaller base width to keep height reasonable
+    let baseWidth = 400;
+    let width = baseWidth;
+    let height = Math.round((baseWidth * ratioHeight) / ratioWidth);
+    
+    // If height is too small, adjust base width to achieve minimum usable height
+    if (height < 50) {
+        baseWidth = Math.round((50 * ratioWidth) / ratioHeight);
+        width = baseWidth;
+        height = 50;
+    }
     
     // Validate dimensions
-    if (width < 200 || width > 800 || height < 100 || height > 600) {
+    if (width < 200 || width > 800 || height < 50 || height > 600) {
         return {
             statusCode: 400,
-            body: JSON.stringify({ error: 'Calculated dimensions are out of valid range (200-800 width, 100-600 height)' }),
+            body: JSON.stringify({ error: 'Calculated dimensions are out of valid range (200-800 width, 50-600 height)' }),
         };
     }
     
