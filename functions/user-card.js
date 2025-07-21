@@ -177,7 +177,7 @@ exports.handler = async (event, context) => {
     const displayEmail = truncateText(email, emailMaxChars);
     const displayDesc = truncateText(description, descMaxChars);
     
-    const shadowId = `shadow-${crypto.randomUUID()}`;
+    const shadowId = `shadow-${Math.random().toString(36).substr(2, 9)}`;
     const svgImage = `
         <svg width="${width}" height="${height}" overflow="visible" xmlns="http://www.w3.org/2000/svg">
             <defs>
