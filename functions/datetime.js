@@ -79,8 +79,11 @@ function createCalendarClockSVG(dateInput = new Date(), opts = {}) {
     const strokeW = s * 0.05;           // thick outline
     const headerH = s * 0.28;
     const radius = s * 0.17;           // clock radius
-    const clockCX = s * 0.78;
-    const clockCY = s * 0.78;
+    // Position clock center at the bottom-right corner of the calendar
+    const calendarRight = s - strokeW / 2;
+    const calendarBottom = s - strokeW / 2;
+    const clockCX = calendarRight + radius * 0.3;  // Clock center extends beyond calendar corner
+    const clockCY = calendarBottom + radius * 0.3; // Clock center extends beyond calendar corner
 
     // ---------- date / time parts ----------
     const monthTxt = d.toLocaleString("en-US", { month: "short" }).toUpperCase();
@@ -110,7 +113,7 @@ function createCalendarClockSVG(dateInput = new Date(), opts = {}) {
     <rect x="${strokeW / 2}" y="${strokeW / 2}" width="${s - strokeW}" height="${headerH}" fill="${header}"/>
     
     <!-- Month text -->
-    <text x="${s / 2}" y="${headerH * 0.65}" font-family="sans-serif" font-size="${headerH * 0.45}" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#FFFFFF">${monthTxt}</text>
+    <text x="${s / 2}" y="${headerH * 0.6}" font-family="sans-serif" font-size="${headerH * 0.35}" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#FFFFFF">${monthTxt}</text>
     
     <!-- Day number -->
     <text x="${s / 2}" y="${headerH + (s - headerH) / 2}" font-family="sans-serif" font-size="${(s - headerH) * 0.55}" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="${stroke}">${dayTxt}</text>
