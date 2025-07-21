@@ -158,6 +158,16 @@ exports.handler = async (event, context) => {
         return text.substring(0, maxLength - 3) + '...';
     };
     
+    // Helper function to escape XML characters
+    const escapeXML = (str) => {
+        return str
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&apos;');
+    };
+    
     // Calculate max characters based on content width
     const nameMaxChars = Math.floor(contentWidth / (nameFontSize * 0.6));
     const emailMaxChars = Math.floor(contentWidth / (emailFontSize * 0.6));
@@ -167,66 +177,30 @@ exports.handler = async (event, context) => {
     const displayEmail = truncateText(email, emailMaxChars);
     const displayDesc = truncateText(description, descMaxChars);
     
+    const shadowId = `shadow-${crypto.randomUUID()}`;
     const svgImage = `
-        <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+        <svg width="${width}" height="${height}" overflow="visible" xmlns="http://www.w3.org/2000/svg">
             <defs>
                 <style>
-                    .card-bg { fill: ${bgColor}; }
-                    .name-text { font-family: 'Arial', sans-serif; font-weight: 600; font-size: ${nameFontSize}px; fill: ${textColor}; }
-                    .email-text { font-family: 'Arial', sans-serif; font-weight: 400; font-size: ${emailFontSize}px; fill: ${primaryColor}; }
-                    .desc-text { font-family: 'Arial', sans-serif; font-weight: 400; font-size: ${descFontSize}px; fill: ${subtextColor}; }
+                    .card-bg{fill:${bgColor}};
+                    .name{font:600 ${nameFontSize}px Arial,sans-serif;fill:${textColor}}
+                    .email{font:400 ${emailFontSize}px Arial,sans-serif;fill:${primaryColor}}
+                    .desc{font:400 ${descFontSize}px Arial,sans-serif;fill:${subtextColor}}
                 </style>
-                ${bgColor !== 'transparent' ? `
-                <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-                    <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000000" flood-opacity="0.1"/>
+                ${bgColor && bgColor !== 'transparent' ? `
+                <filter id="${shadowId}" x="-20%" y="-20%" width="140%" height="140%">
+                    <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000" flood-opacity=".1"/>
                 </filter>` : ''}
             </defs>
             
-            <!-- Card background (only if not transparent) -->
-            ${bgColor !== 'transparent' ? `
-            <rect 
-                x="0" 
-                y="0" 
-                width="${width}" 
-                height="${height}" 
-                rx="12" 
-                ry="12" 
-                class="card-bg"
-                filter="url(#shadow)"
-            />` : ''}
+            ${bgColor && bgColor !== 'transparent' ? `
+            <rect width="${width}" height="${height}" rx="12" class="card-bg" filter="url(#${shadowId})"/>` : ''}
             
-            <!-- User image or placeholder -->
             ${imageElement}
             
-            <!-- User name -->
-            <text 
-                x="${contentX}" 
-                y="${nameY}" 
-                class="name-text"
-            >
-                ${displayName}
-            </text>
-            
-            <!-- Email (if provided) -->
-            ${email ? `
-            <text 
-                x="${contentX}" 
-                y="${emailY}" 
-                class="email-text"
-            >
-                ${displayEmail}
-            </text>` : ''}
-            
-            <!-- Description (if provided) -->
-            ${description ? `
-            <text 
-                x="${contentX}" 
-                y="${email ? descY : emailY}" 
-                class="desc-text"
-            >
-                ${displayDesc}
-            </text>` : ''}
-            
+            <text x="${contentX}" y="${nameY}" class="name">${escapeXML(displayName)}</text>
+            ${email ? `<text x="${contentX}" y="${emailY}" class="email">${escapeXML(displayEmail)}</text>` : ''}
+            ${description ? `<text x="${contentX}" y="${email ? descY : emailY}" class="desc">${escapeXML(displayDesc)}</text>` : ''}
         </svg>
     `;
 
