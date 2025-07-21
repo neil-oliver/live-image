@@ -5,6 +5,7 @@ exports.handler = async (event, context) => {
     // Extract parameters with defaults
     const timestampInput = queryParams.timestamp || Date.now(); // Default to current timestamp
     const size = parseInt(queryParams.size) || 128; // Default size
+    const padding = parseInt(queryParams.padding) || 10; // Default padding
     const header = queryParams.header || "#EF5350"; // Default header color
     const stroke = queryParams.stroke || "#0B0B0B"; // Default stroke color
     
@@ -13,6 +14,14 @@ exports.handler = async (event, context) => {
         return {
             statusCode: 400,
             body: JSON.stringify({ error: 'Size must be between 32 and 512 pixels' }),
+        };
+    }
+    
+    // Validate padding
+    if (padding < 0 || padding > 100) {
+        return {
+            statusCode: 400,
+            body: JSON.stringify({ error: 'Padding must be between 0 and 100 pixels' }),
         };
     }
     
@@ -36,7 +45,7 @@ exports.handler = async (event, context) => {
         }
         
         // Generate SVG
-        const svg = createCalendarClockSVG(timestamp, { size, header, stroke });
+        const svg = createCalendarClockSVG(timestamp, { size, padding, header, stroke });
         
         return {
             statusCode: 200,
@@ -62,6 +71,7 @@ exports.handler = async (event, context) => {
  * @param {number} timestamp – Unix timestamp in milliseconds
  * @param {Object} [opts]
  * @param {number} [opts.size=128]        – Icon's outer width/height (square)
+ * @param {number} [opts.padding=0]       – Padding around the icon
  * @param {string} [opts.header="#EF5350"] – Month‑bar fill color
  * @param {string} [opts.stroke="#0B0B0B"] – Outline / text stroke color
  * @returns {string} SVG string
@@ -70,12 +80,14 @@ function createCalendarClockSVG(timestamp = Date.now(), opts = {}) {
     const d = new Date(timestamp);
     const {
         size = 128,
+        padding = 0,
         header = "#EF5350",
         stroke = "#0B0B0B"
     } = opts;
 
     // ---------- basic geometry ----------
     const s = size;
+    const p = padding;
     const strokeW = s * 0.05;           // thick outline
     const borderRadius = s * 0.1;      // corner radius
     const headerH = s * 0.28;          // header height
@@ -106,45 +118,45 @@ function createCalendarClockSVG(timestamp = Date.now(), opts = {}) {
     const [hrX, hrY] = polar(hrDeg, clockRadius * 0.5);
 
     // ---------- svg string builder ----------
-    const svg = `<svg width="${s}" height="${s}" viewBox="0 0 ${s} ${s}" fill="none" xmlns="http://www.w3.org/2000/svg">
+    const totalSize = s + (p * 2); // Add padding to both sides
+    const svg = `<svg width="${s}" height="${s}" viewBox="0 0 ${totalSize} ${totalSize}" fill="none" xmlns="http://www.w3.org/2000/svg">
 
     <!-- Header bar with rounded top corners only (rendered last to be on top) -->
-    <path d="M ${strokeW / 2 + borderRadius} ${strokeW / 2}
-             L ${s - strokeW / 2 - borderRadius} ${strokeW / 2}
-             A ${borderRadius} ${borderRadius} 0 0 1 ${s - strokeW / 2} ${strokeW / 2 + borderRadius}
-             L ${s - strokeW / 2} ${headerH}
-             L ${strokeW / 2} ${headerH}
-             L ${strokeW / 2} ${strokeW / 2 + borderRadius}
-             A ${borderRadius} ${borderRadius} 0 0 1 ${strokeW / 2 + borderRadius} ${strokeW / 2} Z" 
+    <path d="M ${p + strokeW / 2 + borderRadius} ${p + strokeW / 2}
+             L ${p + s - strokeW / 2 - borderRadius} ${p + strokeW / 2}
+             A ${borderRadius} ${borderRadius} 0 0 1 ${p + s - strokeW / 2} ${p + strokeW / 2 + borderRadius}
+             L ${p + s - strokeW / 2} ${p + headerH}
+             L ${p + strokeW / 2} ${p + headerH}
+             L ${p + strokeW / 2} ${p + strokeW / 2 + borderRadius}
+             A ${borderRadius} ${borderRadius} 0 0 1 ${p + strokeW / 2 + borderRadius} ${p + strokeW / 2} Z" 
           fill="${header}"/>
     
     <!-- Month text (rendered last to be on top) -->
-    <text x="${s / 2}" y="${headerH * 0.65}" font-family="Arial, sans-serif" font-size="${headerH * 0.60}" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#FFFFFF">${monthTxt}</text>
+    <text x="${p + s / 2}" y="${p + headerH * 0.65}" font-family="Arial, sans-serif" font-size="${headerH * 0.60}" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#FFFFFF">${monthTxt}</text>
 
     <!-- Calendar main body with rounded corners -->
-    <rect x="${strokeW / 2}" y="${strokeW / 2}" width="${s - strokeW}" height="${s - strokeW}" rx="${borderRadius}" stroke="${stroke}" stroke-width="${strokeW}" fill="none"/>
+    <rect x="${p + strokeW / 2}" y="${p + strokeW / 2}" width="${s - strokeW}" height="${s - strokeW}" rx="${borderRadius}" stroke="${stroke}" stroke-width="${strokeW}" fill="none"/>
     
     <!-- Day number -->
-    <text x="${s / 2}" y="${headerH + (s - headerH) * 0.45}" font-family="Arial, sans-serif" font-size="${(s - headerH) * 0.6}" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="${stroke}">${dayTxt}</text>
+    <text x="${p + s / 2}" y="${p + headerH + (s - headerH) * 0.45}" font-family="Arial, sans-serif" font-size="${(s - headerH) * 0.6}" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="${stroke}">${dayTxt}</text>
     
     <!-- Clock background circle -->
-    <circle cx="${clockCX}" cy="${clockCY}" r="${clockRadius}" stroke="${stroke}" stroke-width="${strokeW * 0.8}" fill="#FFFFFF"/>
+    <circle cx="${p + clockCX}" cy="${p + clockCY}" r="${clockRadius}" stroke="${stroke}" stroke-width="${strokeW * 0.8}" fill="#FFFFFF"/>
     
     <!-- Clock hour markers (12, 3, 6, 9 positions) -->
-    <circle cx="${clockCX}" cy="${clockCY - clockRadius * 0.7}" r="${strokeW * 0.25}" fill="${stroke}"/>
-    <circle cx="${clockCX + clockRadius * 0.7}" cy="${clockCY}" r="${strokeW * 0.25}" fill="${stroke}"/>
-    <circle cx="${clockCX}" cy="${clockCY + clockRadius * 0.7}" r="${strokeW * 0.25}" fill="${stroke}"/>
-    <circle cx="${clockCX - clockRadius * 0.7}" cy="${clockCY}" r="${strokeW * 0.25}" fill="${stroke}"/>
+    <circle cx="${p + clockCX}" cy="${p + clockCY - clockRadius * 0.7}" r="${strokeW * 0.25}" fill="${stroke}"/>
+    <circle cx="${p + clockCX + clockRadius * 0.7}" cy="${p + clockCY}" r="${strokeW * 0.25}" fill="${stroke}"/>
+    <circle cx="${p + clockCX}" cy="${p + clockCY + clockRadius * 0.7}" r="${strokeW * 0.25}" fill="${stroke}"/>
+    <circle cx="${p + clockCX - clockRadius * 0.7}" cy="${p + clockCY}" r="${strokeW * 0.25}" fill="${stroke}"/>
     
     <!-- Minute hand -->
-    <line x1="${clockCX}" y1="${clockCY}" x2="${minX}" y2="${minY}" stroke="${stroke}" stroke-width="${strokeW * 0.4}" stroke-linecap="round"/>
+    <line x1="${p + clockCX}" y1="${p + clockCY}" x2="${p + minX}" y2="${p + minY}" stroke="${stroke}" stroke-width="${strokeW * 0.4}" stroke-linecap="round"/>
     
     <!-- Hour hand (thicker and shorter) -->
-    <line x1="${clockCX}" y1="${clockCY}" x2="${hrX}" y2="${hrY}" stroke="${stroke}" stroke-width="${strokeW * 0.6}" stroke-linecap="round"/>
+    <line x1="${p + clockCX}" y1="${p + clockCY}" x2="${p + hrX}" y2="${p + hrY}" stroke="${stroke}" stroke-width="${strokeW * 0.6}" stroke-linecap="round"/>
     
     <!-- Center pin -->
-    <circle cx="${clockCX}" cy="${clockCY}" r="${strokeW * 0.4}" fill="${stroke}"/>
-
+    <circle cx="${p + clockCX}" cy="${p + clockCY}" r="${strokeW * 0.4}" fill="${stroke}"/>
 </svg>`;
 
     return svg;
