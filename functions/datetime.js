@@ -77,13 +77,14 @@ function createCalendarClockSVG(dateInput = new Date(), opts = {}) {
     // ---------- basic geometry ----------
     const s = size;
     const strokeW = s * 0.05;           // thick outline
-    const headerH = s * 0.28;
-    const radius = s * 0.17;           // clock radius
-    // Position clock center at the bottom-right corner of the calendar
-    const calendarRight = s - strokeW / 2;
-    const calendarBottom = s - strokeW / 2;
-    const clockCX = calendarRight + radius * 0.2;  // Clock center extends beyond calendar corner
-    const clockCY = calendarBottom + radius * 0.2; // Clock center extends beyond calendar corner
+    const borderRadius = s * 0.1;      // corner radius
+    const headerH = s * 0.28;          // header height
+    
+    // Clock dimensions and positioning (positioned as overlay in bottom-right)
+    const clockRadius = s * 0.12;      // smaller clock
+    const clockMargin = s * 0.08;      // margin from edges
+    const clockCX = s - clockMargin - clockRadius;  // right edge minus margin
+    const clockCY = s - clockMargin - clockRadius;  // bottom edge minus margin
 
     // ---------- date / time parts ----------
     const monthTxt = d.toLocaleString("en-US", { month: "short" }).toUpperCase();
@@ -101,42 +102,47 @@ function createCalendarClockSVG(dateInput = new Date(), opts = {}) {
         return [clockCX + len * Math.cos(rad), clockCY + len * Math.sin(rad)];
     };
 
-    const [minX, minY] = polar(minDeg, radius * 0.9);
-    const [hrX, hrY] = polar(hrDeg, radius * 0.6);
+    const [minX, minY] = polar(minDeg, clockRadius * 0.75);
+    const [hrX, hrY] = polar(hrDeg, clockRadius * 0.5);
 
     // ---------- svg string builder ----------
-    // Extend viewport to accommodate the clock that extends beyond calendar
-    const extendedSize = s + radius * 0.6;
-    const svg = `<svg width="${s}" height="${s}" viewBox="0 0 ${extendedSize} ${extendedSize}" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <!-- Calendar outline -->
-    <rect x="${strokeW / 2}" y="${strokeW / 2}" width="${s - strokeW}" height="${s - strokeW}" rx="${s * 0.1}" stroke="${stroke}" stroke-width="${strokeW}"/>
+    const svg = `<svg width="${s}" height="${s}" viewBox="0 0 ${s} ${s}" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Calendar main body with rounded corners -->
+    <rect x="${strokeW / 2}" y="${strokeW / 2}" width="${s - strokeW}" height="${s - strokeW}" rx="${borderRadius}" stroke="${stroke}" stroke-width="${strokeW}" fill="#FFFFFF"/>
     
-    <!-- Header bar -->
-    <rect x="${strokeW / 2}" y="${strokeW / 2}" width="${s - strokeW}" height="${headerH}" fill="${header}"/>
+    <!-- Header bar with rounded top corners only -->
+    <path d="M ${strokeW / 2 + borderRadius} ${strokeW / 2}
+             L ${s - strokeW / 2 - borderRadius} ${strokeW / 2}
+             A ${borderRadius} ${borderRadius} 0 0 1 ${s - strokeW / 2} ${strokeW / 2 + borderRadius}
+             L ${s - strokeW / 2} ${headerH}
+             L ${strokeW / 2} ${headerH}
+             L ${strokeW / 2} ${strokeW / 2 + borderRadius}
+             A ${borderRadius} ${borderRadius} 0 0 1 ${strokeW / 2 + borderRadius} ${strokeW / 2} Z" 
+          fill="${header}"/>
     
     <!-- Month text -->
-    <text x="${s / 2}" y="${headerH * 0.55}" font-family="sans-serif" font-size="${headerH * 0.3}" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#FFFFFF">${monthTxt}</text>
+    <text x="${s / 2}" y="${headerH * 0.65}" font-family="Arial, sans-serif" font-size="${headerH * 0.35}" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#FFFFFF">${monthTxt}</text>
     
     <!-- Day number -->
-    <text x="${s / 2}" y="${headerH + (s - headerH) / 2}" font-family="sans-serif" font-size="${(s - headerH) * 0.55}" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="${stroke}">${dayTxt}</text>
+    <text x="${s / 2}" y="${headerH + (s - headerH) * 0.45}" font-family="Arial, sans-serif" font-size="${(s - headerH) * 0.6}" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="${stroke}">${dayTxt}</text>
     
-    <!-- Clock outline -->
-    <circle cx="${clockCX}" cy="${clockCY}" r="${radius}" stroke="${stroke}" stroke-width="${strokeW}" fill="#FFFFFF"/>
+    <!-- Clock background circle -->
+    <circle cx="${clockCX}" cy="${clockCY}" r="${clockRadius}" stroke="${stroke}" stroke-width="${strokeW * 0.8}" fill="#FFFFFF"/>
     
-    <!-- Clock hour markers -->
-    <circle cx="${clockCX}" cy="${clockCY - radius * 0.8}" r="${strokeW * 0.3}" fill="${stroke}"/>
-    <circle cx="${clockCX + radius * 0.8}" cy="${clockCY}" r="${strokeW * 0.3}" fill="${stroke}"/>
-    <circle cx="${clockCX}" cy="${clockCY + radius * 0.8}" r="${strokeW * 0.3}" fill="${stroke}"/>
-    <circle cx="${clockCX - radius * 0.8}" cy="${clockCY}" r="${strokeW * 0.3}" fill="${stroke}"/>
+    <!-- Clock hour markers (12, 3, 6, 9 positions) -->
+    <circle cx="${clockCX}" cy="${clockCY - clockRadius * 0.7}" r="${strokeW * 0.25}" fill="${stroke}"/>
+    <circle cx="${clockCX + clockRadius * 0.7}" cy="${clockCY}" r="${strokeW * 0.25}" fill="${stroke}"/>
+    <circle cx="${clockCX}" cy="${clockCY + clockRadius * 0.7}" r="${strokeW * 0.25}" fill="${stroke}"/>
+    <circle cx="${clockCX - clockRadius * 0.7}" cy="${clockCY}" r="${strokeW * 0.25}" fill="${stroke}"/>
     
     <!-- Minute hand -->
-    <line x1="${clockCX}" y1="${clockCY}" x2="${minX}" y2="${minY}" stroke="${stroke}" stroke-width="${strokeW * 0.6}" stroke-linecap="round"/>
+    <line x1="${clockCX}" y1="${clockCY}" x2="${minX}" y2="${minY}" stroke="${stroke}" stroke-width="${strokeW * 0.4}" stroke-linecap="round"/>
     
-    <!-- Hour hand -->
-    <line x1="${clockCX}" y1="${clockCY}" x2="${hrX}" y2="${hrY}" stroke="${stroke}" stroke-width="${strokeW * 0.8}" stroke-linecap="round"/>
+    <!-- Hour hand (thicker and shorter) -->
+    <line x1="${clockCX}" y1="${clockCY}" x2="${hrX}" y2="${hrY}" stroke="${stroke}" stroke-width="${strokeW * 0.6}" stroke-linecap="round"/>
     
     <!-- Center pin -->
-    <circle cx="${clockCX}" cy="${clockCY}" r="${strokeW * 0.6}" fill="${stroke}"/>
+    <circle cx="${clockCX}" cy="${clockCY}" r="${strokeW * 0.4}" fill="${stroke}"/>
 </svg>`;
 
     return svg;
