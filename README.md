@@ -152,6 +152,40 @@ Generates color gradients or solid colors based on CSS linear-gradient functiona
 - Angle-based gradients (e.g., "45deg")
 - Transparency support with alpha channel
 
+### User Card
+
+Generates a modern user profile card with circular avatar, name, email, and description.
+
+**URL:** `/user-card.svg`
+
+**Parameters:**
+- `name` (string): Full name (default: "User Name")
+- `firstName` (string): First name (alternative to `name`)
+- `lastName` (string): Last name (alternative to `name`)
+- `email` (string): Email address
+- `description` (string): Job title or description (aliases: `title`, `job`)
+- `image` (string): Image URL for avatar (alias: `avatar`)
+- `ratio` (string): Aspect ratio (default: "16:9", format: "width:height")
+- `bgColor` (hex color): Background color (alias: `bg`, default: #FFFFFF)
+- `primaryColor` (hex color): Primary accent color (alias: `primary`, default: #3B82F6)
+- `textColor` (hex color): Main text color (alias: `text`, default: #1F2937)
+- `subtextColor` (hex color): Secondary text color (alias: `subtext`, default: #6B7280)
+
+**Example:**
+```
+/user-card.svg?name=John%20Doe&email=john@example.com&description=Software%20Engineer&image=https://example.com/avatar.jpg
+/user-card.svg?firstName=Jane&lastName=Smith&email=jane@company.com&description=Product%20Manager&ratio=4:3&primary=%23FF6B6B
+```
+
+**Features:**
+- Landscape orientation with circular avatar on the left
+- Automatic image cropping to circle with fallback placeholder
+- Responsive text sizing and truncation
+- Modern design with subtle shadows and rounded corners
+- Customizable aspect ratios (16:9, 4:3, 3:2, etc.)
+- Professional typography and spacing
+- Flexible name input (full name or first/last separately)
+
 ## Usage Examples
 
 ### Progress Bar Examples
@@ -192,6 +226,13 @@ Generates color gradients or solid colors based on CSS linear-gradient functiona
 - `/gradient.svg?colors=%23FF6B6B80,%23FECA57` - Red with 50% transparency to yellow
 - `/gradient.svg?colors=%233B82F600,%233B82F6FF` - Transparent to opaque blue gradient
 
+### User Card Examples
+- `/user-card.svg?name=John%20Doe&email=john@example.com&description=Software%20Engineer` - Basic user card
+- `/user-card.svg?firstName=Jane&lastName=Smith&email=jane@company.com&description=Product%20Manager` - Using separate first/last name
+- `/user-card.svg?name=Alex%20Johnson&email=alex@startup.com&description=CEO&image=https://example.com/avatar.jpg` - With custom avatar
+- `/user-card.svg?name=Sarah%20Wilson&email=sarah@design.com&description=UI/UX%20Designer&ratio=4:3&primary=%23FF6B6B` - Custom aspect ratio and colors
+- `/user-card.svg?name=Mike%20Chen&email=mike@tech.com&description=Full%20Stack%20Developer&bg=%23F8F9FA&text=%232D3748` - Custom background and text colors
+
 ## Color Format
 
 All color parameters accept hex color codes:
@@ -230,6 +271,7 @@ To run locally:
    - `http://localhost:8888/pill.svg`
    - `http://localhost:8888/datetime.svg`
    - `http://localhost:8888/gradient.svg`
+   - `http://localhost:8888/user-card.svg`
 
 ## Technical Details
 

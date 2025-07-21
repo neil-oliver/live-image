@@ -33,3 +33,8 @@
   from = "/datetime.svg"
   to = "/.netlify/functions/datetime"
   status = 200
+
+[[redirects]]
+  from = "/user-card.svg"
+  to = "/.netlify/functions/user-card"
+  status = 200
