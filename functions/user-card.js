@@ -12,7 +12,7 @@ exports.handler = async (event, context) => {
     
     // Styling parameters
     const aspectRatio = queryParams.ratio || '16:9'; // Default aspect ratio
-    const padding = parseInt(queryParams.padding) || 24; // Default padding
+    const padding = parseInt(queryParams.padding) || 10; // Default padding
     const bgColor = queryParams.bgColor || queryParams.bg || 'transparent'; // Background color (transparent by default)
     const primaryColor = queryParams.primaryColor || queryParams.primary || '#3B82F6'; // Primary accent color
     const textColor = queryParams.textColor || queryParams.text || '#1F2937'; // Text color
@@ -64,9 +64,7 @@ exports.handler = async (event, context) => {
     // Layout calculations
     const imageSize = Math.min(height - (padding * 2), 100); // Max 100px circle (reduced from 120px)
     const imageX = padding;
-    const imageY = (height - imageSize) / 2;
     const imageCenterX = imageX + imageSize / 2;
-    const imageCenterY = imageY + imageSize / 2;
     
     // Content area (to the right of image)
     const contentX = imageX + imageSize + padding;
@@ -84,8 +82,18 @@ exports.handler = async (event, context) => {
     const descHeight = description ? descFontSize * lineHeight : 0;
     const totalContentHeight = nameHeight + (email ? emailHeight + 8 : 0) + (description ? descHeight + 8 : 0);
     
-    // Vertical centering calculations
-    const contentStartY = (height - totalContentHeight) / 2;
+    // Calculate the total height of the content area (image + text)
+    const totalHeight = Math.max(imageSize, totalContentHeight);
+    
+    // Center the entire content area (image + text) vertically
+    const contentAreaStartY = (height - totalHeight) / 2;
+    
+    // Position image and text relative to the centered content area
+    const imageY = contentAreaStartY + (totalHeight - imageSize) / 2;
+    const imageCenterY = imageY + imageSize / 2;
+    
+    // Vertical centering calculations for text
+    const contentStartY = contentAreaStartY + (totalHeight - totalContentHeight) / 2;
     const nameY = contentStartY + nameHeight;
     const emailY = email ? nameY + 8 + emailHeight : nameY;
     const descY = description ? (email ? emailY + 8 + descHeight : nameY + 8 + descHeight) : emailY;
