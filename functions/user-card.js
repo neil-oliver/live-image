@@ -84,14 +84,9 @@ exports.handler = async (event, context) => {
     const descFontSize = Math.min(14, contentWidth / 20);
     
     // Calculate total content height for vertical centering
-    const lineHeight = 1.2; // Line height multiplier
-    const nameHeight = nameFontSize * lineHeight;
-    const emailHeight = email ? emailFontSize * lineHeight : 0;
-    const descHeight = description ? descFontSize * lineHeight : 0;
-    const totalContentHeight = nameHeight + (email ? emailHeight + 8 : 0) + (description ? descHeight + 8 : 0);
-    
-    // Calculate the total height of the content area (image + text)
-    const totalHeight = Math.max(imageSize, totalContentHeight);
+    const gap = 4; // px
+    const textBlock = nameFontSize + emailFontSize + (description ? descFontSize : 0) + (description ? 2*gap : gap);
+    const totalHeight = Math.max(imageSize, textBlock);
     
     // Center the entire content area (image + text) vertically
     const contentAreaStartY = (height - totalHeight) / 2;
@@ -101,10 +96,9 @@ exports.handler = async (event, context) => {
     const imageCenterY = imageY + imageSize / 2;
     
     // Vertical centering calculations for text
-    const contentStartY = contentAreaStartY + (totalHeight - totalContentHeight) / 2;
-    const nameY = contentStartY + nameHeight;
-    const emailY = email ? nameY + 8 + emailHeight : nameY;
-    const descY = description ? (email ? emailY + 8 + descHeight : nameY + 8 + descHeight) : emailY;
+    const startY = contentAreaStartY + (totalHeight - textBlock) / 2 + nameFontSize;
+    const emailY = startY + gap + emailFontSize;
+    const descY = emailY + (description ? gap + descFontSize : 0);
     
     // Generate image element (with fallback to placeholder)
     let imageElement = '';
@@ -179,13 +173,28 @@ exports.handler = async (event, context) => {
     
     const shadowId = `shadow-${Math.random().toString(36).substr(2, 9)}`;
     const svgImage = `
-        <svg width="${width}" height="${height}" overflow="visible" xmlns="http://www.w3.org/2000/svg">
+        <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" overflow="visible">
             <defs>
                 <style>
-                    .card-bg{fill:${bgColor}};
-                    .name{font:600 ${nameFontSize}px Arial,sans-serif;fill:${textColor}}
-                    .email{font:400 ${emailFontSize}px Arial,sans-serif;fill:${primaryColor}}
-                    .desc{font:400 ${descFontSize}px Arial,sans-serif;fill:${subtextColor}}
+                    .card-bg{fill:${bgColor}}
+                    .name{
+                        font-weight:600;
+                        font-size:${nameFontSize}px;
+                        font-family:Arial, sans-serif;
+                        fill:${textColor};
+                    }
+                    .email{
+                        font-weight:400;
+                        font-size:${emailFontSize}px;
+                        font-family:Arial, sans-serif;
+                        fill:${primaryColor};
+                    }
+                    .desc{
+                        font-weight:400;
+                        font-size:${descFontSize}px;
+                        font-family:Arial, sans-serif;
+                        fill:${subtextColor};
+                    }
                 </style>
                 ${bgColor && bgColor !== 'transparent' ? `
                 <filter id="${shadowId}" x="-20%" y="-20%" width="140%" height="140%">
@@ -193,14 +202,17 @@ exports.handler = async (event, context) => {
                 </filter>` : ''}
             </defs>
             
-            ${bgColor && bgColor !== 'transparent' ? `
-            <rect width="${width}" height="${height}" rx="12" class="card-bg" filter="url(#${shadowId})"/>` : ''}
+            ${bgColor && bgColor !== 'transparent'
+                ? `<rect width="${width}" height="${height}" rx="12" class="card-bg" filter="url(#${shadowId})"/>`
+                : ''}
             
             ${imageElement}
             
-            <text x="${contentX}" y="${nameY}" class="name">${escapeXML(displayName)}</text>
-            ${email ? `<text x="${contentX}" y="${emailY}" class="email">${escapeXML(displayEmail)}</text>` : ''}
-            ${description ? `<text x="${contentX}" y="${email ? descY : emailY}" class="desc">${escapeXML(displayDesc)}</text>` : ''}
+            <text x="${contentX}" y="${startY}" dominant-baseline="text-before-edge" class="name">${escapeXML(displayName)}</text>
+            <text x="${contentX}" y="${emailY}" dominant-baseline="text-before-edge" class="email">${escapeXML(displayEmail)}</text>
+            ${description
+                ? `<text x="${contentX}" y="${descY}" dominant-baseline="text-before-edge" class="desc">${escapeXML(displayDesc)}</text>`
+                : ''}
         </svg>
     `;
 
