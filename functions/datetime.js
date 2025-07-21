@@ -82,8 +82,8 @@ function createCalendarClockSVG(dateInput = new Date(), opts = {}) {
     // Position clock center at the bottom-right corner of the calendar
     const calendarRight = s - strokeW / 2;
     const calendarBottom = s - strokeW / 2;
-    const clockCX = calendarRight + radius * 0.3;  // Clock center extends beyond calendar corner
-    const clockCY = calendarBottom + radius * 0.3; // Clock center extends beyond calendar corner
+    const clockCX = calendarRight + radius * 0.2;  // Clock center extends beyond calendar corner
+    const clockCY = calendarBottom + radius * 0.2; // Clock center extends beyond calendar corner
 
     // ---------- date / time parts ----------
     const monthTxt = d.toLocaleString("en-US", { month: "short" }).toUpperCase();
@@ -105,7 +105,9 @@ function createCalendarClockSVG(dateInput = new Date(), opts = {}) {
     const [hrX, hrY] = polar(hrDeg, radius * 0.6);
 
     // ---------- svg string builder ----------
-    const svg = `<svg width="${s}" height="${s}" viewBox="0 0 ${s} ${s}" fill="none" xmlns="http://www.w3.org/2000/svg">
+    // Extend viewport to accommodate the clock that extends beyond calendar
+    const extendedSize = s + radius * 0.6;
+    const svg = `<svg width="${s}" height="${s}" viewBox="0 0 ${extendedSize} ${extendedSize}" fill="none" xmlns="http://www.w3.org/2000/svg">
     <!-- Calendar outline -->
     <rect x="${strokeW / 2}" y="${strokeW / 2}" width="${s - strokeW}" height="${s - strokeW}" rx="${s * 0.1}" stroke="${stroke}" stroke-width="${strokeW}"/>
     
@@ -113,7 +115,7 @@ function createCalendarClockSVG(dateInput = new Date(), opts = {}) {
     <rect x="${strokeW / 2}" y="${strokeW / 2}" width="${s - strokeW}" height="${headerH}" fill="${header}"/>
     
     <!-- Month text -->
-    <text x="${s / 2}" y="${headerH * 0.6}" font-family="sans-serif" font-size="${headerH * 0.35}" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#FFFFFF">${monthTxt}</text>
+    <text x="${s / 2}" y="${headerH * 0.55}" font-family="sans-serif" font-size="${headerH * 0.3}" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#FFFFFF">${monthTxt}</text>
     
     <!-- Day number -->
     <text x="${s / 2}" y="${headerH + (s - headerH) / 2}" font-family="sans-serif" font-size="${(s - headerH) * 0.55}" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="${stroke}">${dayTxt}</text>
