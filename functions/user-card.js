@@ -12,17 +12,18 @@ exports.handler = async (event, context) => {
     
     // Styling parameters
     const aspectRatio = queryParams.ratio || '16:9'; // Default aspect ratio
-    const bgColor = queryParams.bgColor || queryParams.bg || '#FFFFFF'; // Background color
+    const bgColor = queryParams.bgColor || queryParams.bg || 'transparent'; // Background color (transparent by default)
     const primaryColor = queryParams.primaryColor || queryParams.primary || '#3B82F6'; // Primary accent color
     const textColor = queryParams.textColor || queryParams.text || '#1F2937'; // Text color
     const subtextColor = queryParams.subtextColor || queryParams.subtext || '#6B7280'; // Subtitle text color
     
-    // Validate color formats
+    // Validate color formats (allow 'transparent' for background)
     const colorRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
-    if (!colorRegex.test(bgColor) || !colorRegex.test(primaryColor) || !colorRegex.test(textColor) || !colorRegex.test(subtextColor)) {
+    const transparentRegex = /^transparent$/;
+    if ((bgColor !== 'transparent' && !colorRegex.test(bgColor)) || !colorRegex.test(primaryColor) || !colorRegex.test(textColor) || !colorRegex.test(subtextColor)) {
         return {
             statusCode: 400,
-            body: JSON.stringify({ error: 'Invalid color format. Use hex colors (e.g., #3B82F6)' }),
+            body: JSON.stringify({ error: 'Invalid color format. Use hex colors (e.g., #3B82F6) or "transparent" for background' }),
         };
     }
     
@@ -62,12 +63,24 @@ exports.handler = async (event, context) => {
     // Content area (to the right of image)
     const contentX = imageX + imageSize + padding;
     const contentWidth = width - contentX - padding;
-    const contentY = padding;
     
     // Text sizing
     const nameFontSize = Math.min(24, contentWidth / 12);
     const emailFontSize = Math.min(16, contentWidth / 18);
     const descFontSize = Math.min(14, contentWidth / 20);
+    
+    // Calculate total content height for vertical centering
+    const lineHeight = 1.2; // Line height multiplier
+    const nameHeight = nameFontSize * lineHeight;
+    const emailHeight = email ? emailFontSize * lineHeight : 0;
+    const descHeight = description ? descFontSize * lineHeight : 0;
+    const totalContentHeight = nameHeight + (email ? emailHeight + 8 : 0) + (description ? descHeight + 8 : 0);
+    
+    // Vertical centering calculations
+    const contentStartY = (height - totalContentHeight) / 2;
+    const nameY = contentStartY + nameHeight;
+    const emailY = email ? nameY + 8 + emailHeight : nameY;
+    const descY = description ? (email ? emailY + 8 + descHeight : nameY + 8 + descHeight) : emailY;
     
     // Generate image element (with fallback to placeholder)
     let imageElement = '';
@@ -115,11 +128,6 @@ exports.handler = async (event, context) => {
             </g>`;
     }
     
-    // Text positioning
-    const nameY = contentY + nameFontSize + 8;
-    const emailY = nameY + emailFontSize + 16;
-    const descY = emailY + descFontSize + 12;
-    
     // Helper function to truncate text if too long
     const truncateText = (text, maxLength) => {
         if (text.length <= maxLength) return text;
@@ -144,12 +152,14 @@ exports.handler = async (event, context) => {
                     .email-text { font-family: 'Arial', sans-serif; font-weight: 400; font-size: ${emailFontSize}px; fill: ${primaryColor}; }
                     .desc-text { font-family: 'Arial', sans-serif; font-weight: 400; font-size: ${descFontSize}px; fill: ${subtextColor}; }
                 </style>
+                ${bgColor !== 'transparent' ? `
                 <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
                     <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000000" flood-opacity="0.1"/>
-                </filter>
+                </filter>` : ''}
             </defs>
             
-            <!-- Card background with subtle shadow -->
+            <!-- Card background (only if not transparent) -->
+            ${bgColor !== 'transparent' ? `
             <rect 
                 x="0" 
                 y="0" 
@@ -159,7 +169,7 @@ exports.handler = async (event, context) => {
                 ry="12" 
                 class="card-bg"
                 filter="url(#shadow)"
-            />
+            />` : ''}
             
             <!-- User image or placeholder -->
             ${imageElement}
@@ -196,7 +206,7 @@ exports.handler = async (event, context) => {
             <!-- Subtle accent line -->
             <rect 
                 x="${contentX}" 
-                y="${nameY + 8}" 
+                y="${nameY - nameHeight + 4}" 
                 width="32" 
                 height="2" 
                 rx="1" 
