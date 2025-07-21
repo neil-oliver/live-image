@@ -119,7 +119,7 @@ function createCalendarClockSVG(timestamp = Date.now(), opts = {}) {
           fill="${header}"/>
     
     <!-- Month text (rendered last to be on top) -->
-    <text x="${s / 2}" y="${headerH * 0.5}" font-family="Arial, sans-serif" font-size="${headerH * 0.60}" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#FFFFFF">${monthTxt}</text>
+    <text x="${s / 2}" y="${headerH * 0.65}" font-family="Arial, sans-serif" font-size="${headerH * 0.60}" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#FFFFFF">${monthTxt}</text>
 
     <!-- Calendar main body with rounded corners -->
     <rect x="${strokeW / 2}" y="${strokeW / 2}" width="${s - strokeW}" height="${s - strokeW}" rx="${borderRadius}" stroke="${stroke}" stroke-width="${strokeW}" fill="none"/>
