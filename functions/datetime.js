@@ -3,7 +3,7 @@ exports.handler = async (event, context) => {
     const queryParams = event.queryStringParameters || {};
     
     // Extract parameters with defaults
-    const dateInput = queryParams.date || new Date().toISOString(); // Default to current date/time
+    const timestampInput = queryParams.timestamp || Date.now(); // Default to current timestamp
     const size = parseInt(queryParams.size) || 128; // Default size
     const header = queryParams.header || "#EF5350"; // Default header color
     const stroke = queryParams.stroke || "#0B0B0B"; // Default stroke color
@@ -26,17 +26,17 @@ exports.handler = async (event, context) => {
     }
     
     try {
-        // Parse date input
-        const d = new Date(dateInput);
-        if (isNaN(d.getTime())) {
+        // Parse timestamp input
+        const timestamp = parseInt(timestampInput);
+        if (isNaN(timestamp) || timestamp < 0) {
             return {
                 statusCode: 400,
-                body: JSON.stringify({ error: 'Invalid date format. Use ISO string or timestamp' }),
+                body: JSON.stringify({ error: 'Invalid timestamp. Must be a positive integer' }),
             };
         }
         
         // Generate SVG
-        const svg = createCalendarClockSVG(d, { size, header, stroke });
+        const svg = createCalendarClockSVG(timestamp, { size, header, stroke });
         
         return {
             statusCode: 200,
@@ -59,15 +59,15 @@ exports.handler = async (event, context) => {
 /**
  * Build an SVG calendar‑plus‑clock icon.
  *
- * @param {Date|string|number} dateInput – Anything you can pass to new Date()
+ * @param {number} timestamp – Unix timestamp in milliseconds
  * @param {Object} [opts]
  * @param {number} [opts.size=128]        – Icon's outer width/height (square)
  * @param {string} [opts.header="#EF5350"] – Month‑bar fill color
  * @param {string} [opts.stroke="#0B0B0B"] – Outline / text stroke color
  * @returns {string} SVG string
  */
-function createCalendarClockSVG(dateInput = new Date(), opts = {}) {
-    const d = (dateInput instanceof Date) ? dateInput : new Date(dateInput);
+function createCalendarClockSVG(timestamp = Date.now(), opts = {}) {
+    const d = new Date(timestamp);
     const {
         size = 128,
         header = "#EF5350",
@@ -122,7 +122,7 @@ function createCalendarClockSVG(dateInput = new Date(), opts = {}) {
     <text x="${s / 2}" y="${headerH * 0.5}" font-family="Arial, sans-serif" font-size="${headerH * 0.60}" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#FFFFFF">${monthTxt}</text>
 
     <!-- Calendar main body with rounded corners -->
-    <rect x="${strokeW / 2}" y="${strokeW / 2}" width="${s - strokeW}" height="${s - strokeW}" rx="${borderRadius}" stroke="${stroke}" stroke-width="${strokeW}" fill="#FFFFFF"/>
+    <rect x="${strokeW / 2}" y="${strokeW / 2}" width="${s - strokeW}" height="${s - strokeW}" rx="${borderRadius}" stroke="${stroke}" stroke-width="${strokeW}" fill="none"/>
     
     <!-- Day number -->
     <text x="${s / 2}" y="${headerH + (s - headerH) * 0.45}" font-family="Arial, sans-serif" font-size="${(s - headerH) * 0.6}" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="${stroke}">${dayTxt}</text>
