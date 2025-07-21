@@ -6,6 +6,7 @@ exports.handler = async (event, context) => {
     const timestampInput = queryParams.timestamp || Date.now(); // Default to current timestamp
     const size = parseInt(queryParams.size) || 128; // Default size
     const padding = parseInt(queryParams.padding) || 10; // Default padding
+    const mode = queryParams.mode || 'datetime'; // Default mode: both date and time
     const header = queryParams.header || "#EF5350"; // Default header color
     const stroke = queryParams.stroke || "#0B0B0B"; // Default stroke color
     
@@ -22,6 +23,15 @@ exports.handler = async (event, context) => {
         return {
             statusCode: 400,
             body: JSON.stringify({ error: 'Padding must be between 0 and 100 pixels' }),
+        };
+    }
+    
+    // Validate mode
+    const validModes = ['datetime', 'date', 'time'];
+    if (!validModes.includes(mode)) {
+        return {
+            statusCode: 400,
+            body: JSON.stringify({ error: 'Invalid mode. Must be one of: datetime, date, time' }),
         };
     }
     
@@ -50,7 +60,7 @@ exports.handler = async (event, context) => {
         }
         
         // Generate SVG
-        const svg = createCalendarClockSVG(timestamp, { size, padding, header, stroke });
+        const svg = createCalendarClockSVG(timestamp, { size, padding, mode, header, stroke });
         
         return {
             statusCode: 200,
@@ -76,7 +86,8 @@ exports.handler = async (event, context) => {
  * @param {number} timestamp – Unix timestamp in milliseconds
  * @param {Object} [opts]
  * @param {number} [opts.size=128]        – Icon's outer width/height (square)
- * @param {number} [opts.padding=0]       – Padding around the icon
+ * @param {number} [opts.padding=10]      – Padding around the icon
+ * @param {string} [opts.mode='datetime'] – Display mode: 'datetime', 'date', or 'time'
  * @param {string} [opts.header="#EF5350"] – Month‑bar fill color
  * @param {string} [opts.stroke="#0B0B0B"] – Outline / text stroke color
  * @returns {string} SVG string
@@ -85,7 +96,8 @@ function createCalendarClockSVG(timestamp = Date.now(), opts = {}) {
     const d = new Date(timestamp);
     const {
         size = 128,
-        padding = 0,
+        padding = 10,
+        mode = 'datetime',
         header = "#EF5350",
         stroke = "#0B0B0B"
     } = opts;
@@ -126,6 +138,7 @@ function createCalendarClockSVG(timestamp = Date.now(), opts = {}) {
     const totalSize = s + (p * 2); // Add padding to both sides
     const svg = `<svg width="${s}" height="${s}" viewBox="0 0 ${totalSize} ${totalSize}" fill="none" xmlns="http://www.w3.org/2000/svg">
 
+    ${mode !== 'time' ? `
     <!-- Calendar main background with rounded corners -->
     <rect x="${p + strokeW / 2}" y="${p + strokeW / 2}" width="${s - strokeW}" height="${s - strokeW}" rx="${borderRadius}" stroke="${stroke}" stroke-width="${strokeW}" fill="#FFFFFF"/>
 
@@ -147,7 +160,9 @@ function createCalendarClockSVG(timestamp = Date.now(), opts = {}) {
     
     <!-- Day number -->
     <text x="${p + s / 2}" y="${p + headerH + (s - headerH) * 0.45}" font-family="Arial, sans-serif" font-size="${(s - headerH) * 0.6}" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="${stroke}">${dayTxt}</text>
+    ` : ''}
     
+    ${mode !== 'date' ? `
     <!-- Clock background circle -->
     <circle cx="${p + clockCX}" cy="${p + clockCY}" r="${clockRadius}" stroke="${stroke}" stroke-width="${strokeW * 0.8}" fill="#FFFFFF"/>
     
@@ -165,6 +180,7 @@ function createCalendarClockSVG(timestamp = Date.now(), opts = {}) {
     
     <!-- Center pin -->
     <circle cx="${p + clockCX}" cy="${p + clockCY}" r="${strokeW * 0.4}" fill="${stroke}"/>
+    ` : ''}
 </svg>`;
 
     return svg;
