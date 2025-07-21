@@ -80,10 +80,10 @@ function createCalendarClockSVG(dateInput = new Date(), opts = {}) {
     const borderRadius = s * 0.1;      // corner radius
     const headerH = s * 0.28;          // header height
     
-    // Clock dimensions and positioning (positioned as overlay in bottom-right)
-    const clockRadius = s * 0.12;      // smaller clock
-    const clockMargin = s * 0.08;      // margin from edges
-    const clockCX = s - clockMargin - clockRadius;  // right edge minus margin
+    // Clock dimensions and positioning (positioned as overlay in bottom-left)
+    const clockRadius = s * 0.18;      // larger clock
+    const clockMargin = s * 0.05;      // smaller margin for overlap
+    const clockCX = clockMargin + clockRadius;  // left edge plus margin
     const clockCY = s - clockMargin - clockRadius;  // bottom edge minus margin
 
     // ---------- date / time parts ----------
@@ -110,19 +110,6 @@ function createCalendarClockSVG(dateInput = new Date(), opts = {}) {
     <!-- Calendar main body with rounded corners -->
     <rect x="${strokeW / 2}" y="${strokeW / 2}" width="${s - strokeW}" height="${s - strokeW}" rx="${borderRadius}" stroke="${stroke}" stroke-width="${strokeW}" fill="#FFFFFF"/>
     
-    <!-- Header bar with rounded top corners only -->
-    <path d="M ${strokeW / 2 + borderRadius} ${strokeW / 2}
-             L ${s - strokeW / 2 - borderRadius} ${strokeW / 2}
-             A ${borderRadius} ${borderRadius} 0 0 1 ${s - strokeW / 2} ${strokeW / 2 + borderRadius}
-             L ${s - strokeW / 2} ${headerH}
-             L ${strokeW / 2} ${headerH}
-             L ${strokeW / 2} ${strokeW / 2 + borderRadius}
-             A ${borderRadius} ${borderRadius} 0 0 1 ${strokeW / 2 + borderRadius} ${strokeW / 2} Z" 
-          fill="${header}"/>
-    
-    <!-- Month text -->
-    <text x="${s / 2}" y="${headerH * 0.65}" font-family="Arial, sans-serif" font-size="${headerH * 0.35}" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#FFFFFF">${monthTxt}</text>
-    
     <!-- Day number -->
     <text x="${s / 2}" y="${headerH + (s - headerH) * 0.45}" font-family="Arial, sans-serif" font-size="${(s - headerH) * 0.6}" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="${stroke}">${dayTxt}</text>
     
@@ -143,6 +130,19 @@ function createCalendarClockSVG(dateInput = new Date(), opts = {}) {
     
     <!-- Center pin -->
     <circle cx="${clockCX}" cy="${clockCY}" r="${strokeW * 0.4}" fill="${stroke}"/>
+
+    <!-- Header bar with rounded top corners only (rendered last to be on top) -->
+    <path d="M ${strokeW / 2 + borderRadius} ${strokeW / 2}
+             L ${s - strokeW / 2 - borderRadius} ${strokeW / 2}
+             A ${borderRadius} ${borderRadius} 0 0 1 ${s - strokeW / 2} ${strokeW / 2 + borderRadius}
+             L ${s - strokeW / 2} ${headerH}
+             L ${strokeW / 2} ${headerH}
+             L ${strokeW / 2} ${strokeW / 2 + borderRadius}
+             A ${borderRadius} ${borderRadius} 0 0 1 ${strokeW / 2 + borderRadius} ${strokeW / 2} Z" 
+          fill="${header}"/>
+    
+    <!-- Month text (rendered last to be on top) -->
+    <text x="${s / 2}" y="${headerH * 0.65}" font-family="Arial, sans-serif" font-size="${headerH * 0.45}" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#FFFFFF">${monthTxt}</text>
 </svg>`;
 
     return svg;
