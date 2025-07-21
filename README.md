@@ -82,6 +82,39 @@ Generates a pill-shaped element with customizable text and colors.
 - Centered text with professional typography
 - Subtle highlight for depth
 
+### Datetime
+
+Generates a calendar and clock icon showing a specific date and time.
+
+**URL:** `/datetime.svg`
+
+**Parameters:**
+- `timestamp` (number): Unix timestamp in milliseconds or seconds (default: current time)
+- `size` (number): Icon size in pixels (default: 128, range: 32-512)
+- `padding` (number): Padding around the icon (default: 10, range: 0-100)
+- `mode` (string): Display mode (default: "datetime")
+  - `datetime` - Show both calendar and clock
+  - `date` - Show only calendar
+  - `time` - Show only clock
+- `header` (hex color): Month header color (default: #EF5350)
+- `stroke` (hex color): Outline and text color (default: #0B0B0B)
+
+**Example:**
+```
+/datetime.svg?timestamp=1704067200000&size=200&mode=datetime&header=%23FF6B6B
+/datetime.svg?timestamp=1704067200&mode=date&header=%2310B981
+/datetime.svg?timestamp=1704067200000&mode=time&size=150
+```
+
+**Features:**
+- Calendar with month header and day number
+- Analog clock with hour and minute hands
+- Clock positioned as overlay in bottom-right corner
+- Rounded corners and professional styling
+- Support for both millisecond and second timestamps
+- Customizable colors and sizing
+- Three display modes for flexibility
+
 ### Gradient
 
 Generates color gradients or solid colors based on CSS linear-gradient functionality.
@@ -141,6 +174,15 @@ Generates color gradients or solid colors based on CSS linear-gradient functiona
 - `/pill.svg?text=Warning&color=%23F59E0B&textColor=%23000000` - Yellow warning pill with black text
 - `/pill.svg?text=Completed&color=%2310B981` - Green success pill
 
+### Datetime Examples
+- `/datetime.svg` - Current date and time with default styling
+- `/datetime.svg?timestamp=1704067200000` - Specific date (Jan 1, 2024) with both calendar and clock
+- `/datetime.svg?timestamp=1704067200&mode=date` - Date only (calendar without clock)
+- `/datetime.svg?timestamp=1704067200000&mode=time` - Time only (clock without calendar)
+- `/datetime.svg?size=200&header=%23FF6B6B` - Larger icon with red header
+- `/datetime.svg?timestamp=1704067200000&mode=datetime&stroke=%2310B981` - Green outline and text
+- `/datetime.svg?timestamp=1704067200000&padding=20&size=150` - Custom padding and size
+
 ### Gradient Examples
 - `/gradient.svg?colors=%23FF6B6B` - Solid red color
 - `/gradient.svg?colors=%23FF6B6B,%23FECA57` - Red to yellow gradient
@@ -186,6 +228,7 @@ To run locally:
    - `http://localhost:8888/progress-bar.svg`
    - `http://localhost:8888/progress-donut.svg`
    - `http://localhost:8888/pill.svg`
+   - `http://localhost:8888/datetime.svg`
    - `http://localhost:8888/gradient.svg`
 
 ## Technical Details
