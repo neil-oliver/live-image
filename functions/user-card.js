@@ -70,7 +70,7 @@ exports.handler = async (event, context) => {
     }
     
     // Layout calculations
-    const imageSize = Math.min(height - (padding * 2), 100); // Max 100px circle (reduced from 120px)
+    const imageSize = Math.min(height - (padding * 2), Math.min(100, height * 0.8)); // Max 100px or 80% of height, whichever is smaller
     const imageX = padding;
     const imageCenterX = imageX + imageSize / 2;
     
