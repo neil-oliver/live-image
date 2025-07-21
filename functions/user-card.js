@@ -54,7 +54,7 @@ exports.handler = async (event, context) => {
     
     // Layout calculations
     const padding = 24;
-    const imageSize = Math.min(height - (padding * 2), 120); // Max 120px circle
+    const imageSize = Math.min(height - (padding * 2), 100); // Max 100px circle (reduced from 120px)
     const imageX = padding;
     const imageY = (height - imageSize) / 2;
     const imageCenterX = imageX + imageSize / 2;
@@ -203,16 +203,6 @@ exports.handler = async (event, context) => {
                 ${displayDesc}
             </text>` : ''}
             
-            <!-- Subtle accent line -->
-            <rect 
-                x="${contentX}" 
-                y="${nameY - nameHeight + 4}" 
-                width="32" 
-                height="2" 
-                rx="1" 
-                fill="${primaryColor}"
-                opacity="0.6"
-            />
         </svg>
     `;
 
