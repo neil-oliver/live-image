@@ -121,6 +121,9 @@ function createCalendarClockSVG(timestamp = Date.now(), opts = {}) {
     const totalSize = s + (p * 2); // Add padding to both sides
     const svg = `<svg width="${s}" height="${s}" viewBox="0 0 ${totalSize} ${totalSize}" fill="none" xmlns="http://www.w3.org/2000/svg">
 
+    <!-- Calendar main background with rounded corners -->
+    <rect x="${p + strokeW / 2}" y="${p + strokeW / 2}" width="${s - strokeW}" height="${s - strokeW}" rx="${borderRadius}" stroke="${stroke}" stroke-width="${strokeW}" fill="#FFFFFF"/>
+
     <!-- Header bar with rounded top corners only (rendered last to be on top) -->
     <path d="M ${p + strokeW / 2 + borderRadius} ${p + strokeW / 2}
              L ${p + s - strokeW / 2 - borderRadius} ${p + strokeW / 2}
