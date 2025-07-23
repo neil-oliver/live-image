@@ -38,3 +38,8 @@
   from = "/user-card.svg"
   to = "/.netlify/functions/user-card"
   status = 200
+
+[[redirects]]
+  from = "/stars.svg"
+  to = "/.netlify/functions/stars"
+  status = 200

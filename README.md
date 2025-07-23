@@ -187,6 +187,34 @@ Generates a modern user profile card with circular avatar, name, email, and desc
 - Professional typography and spacing
 - Flexible name input (full name or first/last separately)
 
+### Stars
+
+Generates a star rating display with configurable total stars and filled stars.
+
+**URL:** `/stars.svg`
+
+**Parameters:**
+- `total` (number): Total number of stars to display (default: 5, range: 1-10)
+- `value` (number): Number of filled stars (default: 0, range: 0 to total)
+- `color` (hex color): Color for filled stars (default: #FFD700)
+- `size` (number): Overall size in pixels (default: 200, range: 32-512)
+- `padding` (number): Padding around the stars (default: 10, range: 0-100)
+
+**Example:**
+```
+/stars.svg?total=5&value=3&color=%23FFD700
+/stars.svg?total=10&value=7.5&color=%23FF6B6B&size=300&padding=15
+/stars.svg?total=3&value=2&color=%2310B981&size=150
+```
+
+**Features:**
+- 5-pointed star design using golden ratio proportions
+- Support for partial star ratings (e.g., 3.5 out of 5 stars)
+- Empty stars shown as gray outlines
+- Filled stars in customizable color
+- Responsive sizing and spacing
+- User-configurable padding for consistency with other endpoints
+
 ## Usage Examples
 
 ### Progress Bar Examples
@@ -236,6 +264,14 @@ Generates a modern user profile card with circular avatar, name, email, and desc
 - `/user-card.svg?name=Lisa%20Wang&email=lisa@design.com&description=Creative%20Director` - Transparent background (default)
 - `/user-card.svg?name=Tom%20Brown&email=tom@startup.com&description=CTO&padding=10` - Reduced padding
 
+### Stars Examples
+- `/stars.svg?total=5&value=3` - 3 out of 5 stars with default gold color
+- `/stars.svg?total=5&value=4.5&color=%23FFD700` - 4.5 out of 5 stars (partial star)
+- `/stars.svg?total=10&value=7&color=%23FF6B6B&size=300` - 7 out of 10 stars in red
+- `/stars.svg?total=3&value=2&color=%2310B981&size=150&padding=15` - 2 out of 3 stars in green with custom padding
+- `/stars.svg?total=5&value=0&color=%23F59E0B` - Empty 5-star rating (all gray outlines)
+- `/stars.svg?total=5&value=5&color=%23FFD700` - Full 5-star rating
+
 ## Color Format
 
 All color parameters accept hex color codes:
@@ -275,6 +311,7 @@ To run locally:
    - `http://localhost:8888/datetime.svg`
    - `http://localhost:8888/gradient.svg`
    - `http://localhost:8888/user-card.svg`
+   - `http://localhost:8888/stars.svg`
 
 ## Technical Details
 
