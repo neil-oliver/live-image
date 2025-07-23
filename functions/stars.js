@@ -76,13 +76,17 @@ function createStarsSVG(opts = {}) {
         padding = 10
     } = opts;
 
-    // Calculate dimensions
-    const totalWidth = size + (padding * 2);
-    const totalHeight = size + (padding * 2);
-    
-    // Star dimensions
+    // Calculate star dimensions
     const starSize = size / totalStars * 0.8; // Each star takes up 80% of its allocated space
     const starSpacing = size / totalStars;
+    
+    // Calculate content dimensions (stars area)
+    const contentWidth = totalStars * starSpacing;
+    const contentHeight = starSize;
+    
+    // Calculate total dimensions with padding
+    const totalWidth = contentWidth + (padding * 2);
+    const totalHeight = contentHeight + (padding * 2);
     
     // Create star path (5-pointed star)
     const starPath = createStarPath(starSize / 2);
@@ -91,7 +95,7 @@ function createStarsSVG(opts = {}) {
     
     for (let i = 0; i < totalStars; i++) {
         const x = padding + (i * starSpacing) + (starSpacing / 2);
-        const y = padding + (size / 2);
+        const y = padding + (contentHeight / 2);
         
         if (i < Math.floor(value)) {
             // Fully filled star
