@@ -1,3 +1,5 @@
+const fetch = require('node-fetch');
+
 exports.handler = async (event, context) => {
     // Parse query parameters
     const queryParams = event.queryStringParameters || {};
@@ -101,9 +103,42 @@ exports.handler = async (event, context) => {
     const imageY = contentAreaStartY + (totalHeight - imageSize) / 2;
     const imageCenterY = imageY + imageSize / 2;
     
+    // Helper function to fetch image and convert to data URL
+    const fetchImageAsDataURL = async (imageUrl) => {
+        try {
+            const response = await fetch(imageUrl);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch image: ${response.status}`);
+            }
+            
+            const buffer = await response.arrayBuffer();
+            const base64 = Buffer.from(buffer).toString('base64');
+            const contentType = response.headers.get('content-type') || 'image/jpeg';
+            
+            return `data:${contentType};base64,${base64}`;
+        } catch (error) {
+            console.error('Error fetching image:', error);
+            return null;
+        }
+    };
+    
     // Generate image element (with fallback to placeholder)
     let imageElement = '';
     if (image) {
+        // Try to fetch the image and convert to data URL
+        let imageDataURL = image;
+        
+        // If it's an external URL, try to fetch it
+        if (image.startsWith('http://') || image.startsWith('https://')) {
+            try {
+                imageDataURL = await fetchImageAsDataURL(image);
+            } catch (error) {
+                console.error('Failed to fetch external image:', error);
+                // Fall back to original URL if fetch fails
+                imageDataURL = image;
+            }
+        }
+        
         // Use clipPath for circular image
         imageElement = `
             <defs>
@@ -116,7 +151,7 @@ exports.handler = async (event, context) => {
                 y="${imageY}" 
                 width="${imageSize}" 
                 height="${imageSize}" 
-                href="${image}" 
+                href="${imageDataURL}" 
                 clip-path="url(#circleClip)"
                 preserveAspectRatio="xMidYMid slice"
             />
