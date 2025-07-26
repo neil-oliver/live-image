@@ -92,13 +92,6 @@ exports.handler = async (event, context) => {
     
     const svgImage = `
         <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-                <linearGradient id="progressGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" style="stop-color:${currentColor};stop-opacity:1" />
-                    <stop offset="100%" style="stop-color:${currentColor};stop-opacity:0.8" />
-                </linearGradient>
-            </defs>
-            
             <!-- Background bar (gray) -->
             <rect 
                 x="20" 
@@ -119,20 +112,8 @@ exports.handler = async (event, context) => {
                 height="${barHeight}" 
                 rx="${borderRadius}" 
                 ry="${borderRadius}" 
-                fill="url(#progressGradient)" 
+                fill="${currentColor}" 
                 stroke="none"
-            />
-            
-            <!-- Optional: Add a subtle highlight at the top of the progress bar -->
-            <rect 
-                x="20" 
-                y="${barY}" 
-                width="${progressWidth}" 
-                height="${Math.round(barHeight * 0.1)}" 
-                rx="${borderRadius}" 
-                ry="${borderRadius}" 
-                fill="white" 
-                opacity="0.3"
             />
         </svg>
     `;

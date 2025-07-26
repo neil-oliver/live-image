@@ -124,13 +124,6 @@ exports.handler = async (event, context) => {
     
     const svgImage = `
         <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-                <linearGradient id="donutGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" style="stop-color:${currentColor};stop-opacity:1" />
-                    <stop offset="100%" style="stop-color:${currentColor};stop-opacity:0.8" />
-                </linearGradient>
-            </defs>
-            
             <!-- Background circle (gray) -->
             <circle 
                 cx="${centerX}" 
@@ -148,13 +141,13 @@ exports.handler = async (event, context) => {
                     cy="${centerY}" 
                     r="${radius}" 
                     fill="none" 
-                    stroke="url(#donutGradient)" 
+                    stroke="${currentColor}" 
                     stroke-width="${strokeWidth}"
                 />` : 
                 `<path 
                     d="${progressPath}" 
                     fill="none" 
-                    stroke="url(#donutGradient)" 
+                    stroke="${currentColor}" 
                     stroke-width="${strokeWidth}"
                     stroke-linecap="round"
                 />`
