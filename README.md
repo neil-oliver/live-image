@@ -215,6 +215,33 @@ Generates a star rating display with configurable total stars and filled stars.
 - Responsive sizing and spacing
 - User-configurable padding for consistency with other endpoints
 
+### Blurred Background
+
+Generates a soft, pastel-style backdrop using overlapping radial gradients with an SVG blur.
+
+**URL:** `/blur.svg`
+
+**Parameters:**
+- `width` (number): Image width in px (default: 1200)
+- `height` (number): Image height in px (default: 800)
+- `colors` (comma-separated hex): Palette to sample blobs from (supports alpha; default: `#FF7A59,#FFD166,#7BDFF2,#B794F4,#6EE7B7`)
+- `num` (number): Number of blobs (2–24, default: 8)
+- `blur` (number): Blur radius in SVG user units; defaults to ~8% of min(width,height)
+- `opacity` (0–1): Base opacity for blobs (default: 0.85)
+- `bg` (hex or `transparent`): Background (default: `#EEF2FF`)
+- `seed` (string): Seed for deterministic output (default derived from inputs)
+
+**Examples:**
+```
+/blur.svg?width=1600&height=900&num=10&colors=%23FF8FAB,%23BDE0FE,%23CDB4DB,%23FDE68A&bg=%23F8FAFF
+/blur.svg?width=1200&height=800&seed=homepage&opacity=0.9&blur=120
+```
+
+**Notes:**
+- Output is pure SVG; scales crisply and is small.
+- Uses seeded PRNG for reproducibility across deployments.
+
+
 ## Usage Examples
 
 ### Progress Bar Examples
@@ -272,6 +299,11 @@ Generates a star rating display with configurable total stars and filled stars.
 - `/stars.svg?total=5&value=0&color=%23F59E0B` - Empty 5-star rating (all gray outlines)
 - `/stars.svg?total=5&value=5&color=%23FFD700` - Full 5-star rating
 
+### Blur Examples
+- `/blur.svg?width=1600&height=900&num=10&colors=%23FF8FAB,%23BDE0FE,%23CDB4DB,%23FDE68A&bg=%23F8FAFF`
+- `/blur.svg?width=1200&height=800&seed=homepage&opacity=0.9&blur=120`
+
+
 ## Color Format
 
 All color parameters accept hex color codes:
@@ -321,29 +353,3 @@ To run locally:
 - **Output Format:** SVG (scalable vector graphics)
 - **Caching:** 5-minute cache for better performance
 - **Validation:** Color format validation for all endpoints
- 
-### Blurred Background
-
-Generates a soft, pastel-style backdrop using overlapping radial gradients with an SVG blur.
-
-**URL:** `/blur.svg`
-
-**Parameters:**
-- `width` (number): Image width in px (default: 1200)
-- `height` (number): Image height in px (default: 800)
-- `colors` (comma-separated hex): Palette to sample blobs from (supports alpha; default: `#FF7A59,#FFD166,#7BDFF2,#B794F4,#6EE7B7`)
-- `num` (number): Number of blobs (2–24, default: 8)
-- `blur` (number): Blur radius in SVG user units; defaults to ~8% of min(width,height)
-- `opacity` (0–1): Base opacity for blobs (default: 0.85)
-- `bg` (hex or `transparent`): Background (default: `#EEF2FF`)
-- `seed` (string): Seed for deterministic output (default derived from inputs)
-
-**Examples:**
-```
-/blur.svg?width=1600&height=900&num=10&colors=%23FF8FAB,%23BDE0FE,%23CDB4DB,%23FDE68A&bg=%23F8FAFF
-/blur.svg?width=1200&height=800&seed=homepage&opacity=0.9&blur=120
-```
-
-**Notes:**
-- Output is pure SVG; scales crisply and is small.
-- Uses seeded PRNG for reproducibility across deployments.
