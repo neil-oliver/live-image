@@ -43,3 +43,8 @@
   from = "/stars.svg"
   to = "/.netlify/functions/stars"
   status = 200
+
+[[redirects]]
+  from = "/blurred-background.svg"
+  to = "/.netlify/functions/blurred-background"
+  status = 200
