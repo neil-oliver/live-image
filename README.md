@@ -312,7 +312,7 @@ To run locally:
    - `http://localhost:8888/gradient.svg`
    - `http://localhost:8888/user-card.svg`
    - `http://localhost:8888/stars.svg`
-    - `http://localhost:8888/blurred-background.svg`
+    - `http://localhost:8888/blur.svg`
 
 ## Technical Details
 
@@ -326,7 +326,7 @@ To run locally:
 
 Generates a soft, pastel-style backdrop using overlapping radial gradients with an SVG blur.
 
-**URL:** `/blurred-background.svg`
+**URL:** `/blur.svg`
 
 **Parameters:**
 - `width` (number): Image width in px (default: 1200)
@@ -340,8 +340,8 @@ Generates a soft, pastel-style backdrop using overlapping radial gradients with 
 
 **Examples:**
 ```
-/blurred-background.svg?width=1600&height=900&num=10&colors=%23FF8FAB,%23BDE0FE,%23CDB4DB,%23FDE68A&bg=%23F8FAFF
-/blurred-background.svg?width=1200&height=800&seed=homepage&opacity=0.9&blur=120
+/blur.svg?width=1600&height=900&num=10&colors=%23FF8FAB,%23BDE0FE,%23CDB4DB,%23FDE68A&bg=%23F8FAFF
+/blur.svg?width=1200&height=800&seed=homepage&opacity=0.9&blur=120
 ```
 
 **Notes:**

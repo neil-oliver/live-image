@@ -45,6 +45,6 @@
   status = 200
 
 [[redirects]]
-  from = "/blurred-background.svg"
-  to = "/.netlify/functions/blurred-background"
+  from = "/blur.svg"
+  to = "/.netlify/functions/blur"
   status = 200
