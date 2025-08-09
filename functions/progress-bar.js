@@ -8,6 +8,9 @@ exports.handler = async (event, context) => {
     const value = Math.max(0, Math.min(100, parseFloat(queryParams.value) || 50)); // 0-100, default 50
     const colorParam = queryParams.color || '#3B82F6'; // Default blue color
     const backgroundColorParam = queryParams.bg || queryParams.bgColor || '#E5E7EB'; // Remaining track color
+    // Gradient span behavior: 'progress' (default) or 'bar'
+    const gradientSpanParamRaw = (queryParams.gradientSpan || queryParams.gradientScope || 'progress');
+    const gradientSpan = typeof gradientSpanParamRaw === 'string' ? gradientSpanParamRaw.toLowerCase() : 'progress';
     const aspectRatio = parseFloat(queryParams.aspectRatio) || 4; // Default 4:1 aspect ratio
     
     // Parse colors - can be single color or comma-separated list
@@ -106,12 +109,17 @@ exports.handler = async (event, context) => {
         }).join('')
         : '';
 
+    // Determine gradient coordinates based on gradient span behavior
+    const gradientStartX = 20;
+    const gradientEndX = gradientSpan === 'bar' ? (width - 20) : (20 + progressWidth);
+    const gradientY = barY;
+
     const svgImage = `
         <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
             ${hasGradient ? `
             <defs>
-                <!-- Left-to-right gradient across the filled portion only -->
-                <linearGradient id="gradProgress" gradientUnits="userSpaceOnUse" x1="20" y1="${barY}" x2="${20 + progressWidth}" y2="${barY}">
+                <!-- Gradient can span the full bar or only the filled progress based on gradientSpan -->
+                <linearGradient id="gradProgress" gradientUnits="userSpaceOnUse" x1="${gradientStartX}" y1="${gradientY}" x2="${gradientEndX}" y2="${gradientY}">
                     ${gradientStops}
                 </linearGradient>
             </defs>

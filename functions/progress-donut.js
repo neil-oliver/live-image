@@ -9,6 +9,9 @@ exports.handler = async (event, context) => {
     const strokeWidth = parseInt(queryParams.strokeWidth) || 20; // Default stroke width
     const padding = parseInt(queryParams.padding) || 10; // Default padding
     const backgroundColorParam = queryParams.bg || queryParams.bgColor || '#E5E7EB'; // Remaining ring color
+    // Gradient span behavior: 'progress' (default) or 'bar'
+    const gradientSpanParamRaw = (queryParams.gradientSpan || queryParams.gradientScope || 'progress');
+    const gradientSpan = typeof gradientSpanParamRaw === 'string' ? gradientSpanParamRaw.toLowerCase() : 'progress';
     
     // Parse colors - can be single color or comma-separated list
     let colors = [];
@@ -137,15 +140,20 @@ exports.handler = async (event, context) => {
         }).join('')
         : '';
 
-    // Arc gradient: make gradient follow the circle by using objectBoundingBox with 0-1 box, or userSpace with a sweep-like approximation.
-    // We'll use stroke with gradient defined as around-the-circle by mapping x1,y1 to the left and x2,y2 to the right, then rotate -90deg so it starts at the top.
+    // Determine gradient coordinates based on gradient span behavior.
+    // If 'bar': span the entire circle diameter; if 'progress': span only the arc length proportionally.
+    const gradientX1 = centerX - radius;
+    const gradientX2Full = centerX + radius;
+    const gradientX2Progress = centerX - radius + (2 * radius * (Math.max(0, Math.min(100, value)) / 100));
+    const gradientX2 = gradientSpan === 'bar' ? gradientX2Full : gradientX2Progress;
+    const gradientY = centerY;
     const svgImage = `
         <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
             ${hasGradient ? `
             <defs>
                 <linearGradient id="donutGradient" gradientUnits="userSpaceOnUse"
-                    x1="${centerX - radius}" y1="${centerY}"
-                    x2="${centerX + radius}" y2="${centerY}">
+                    x1="${gradientX1}" y1="${gradientY}"
+                    x2="${gradientX2}" y2="${gradientY}">
                     ${gradientStops}
                 </linearGradient>
             </defs>
