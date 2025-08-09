@@ -7,6 +7,7 @@ exports.handler = async (event, context) => {
     // Extract parameters with defaults
     const value = Math.max(0, Math.min(100, parseFloat(queryParams.value) || 50)); // 0-100, default 50
     const colorParam = queryParams.color || '#3B82F6'; // Default blue color
+    const backgroundColorParam = queryParams.bg || queryParams.bgColor || '#E5E7EB'; // Remaining track color
     const aspectRatio = parseFloat(queryParams.aspectRatio) || 4; // Default 4:1 aspect ratio
     
     // Parse colors - can be single color or comma-separated list
@@ -28,6 +29,12 @@ exports.handler = async (event, context) => {
                 body: JSON.stringify({ error: 'Invalid color format. Use hex color (e.g., #3B82F6) or comma-separated list (e.g., #FF0000,#00FF00,#0000FF)' }),
             };
         }
+    }
+    if (!colorRegex.test(backgroundColorParam)) {
+        return {
+            statusCode: 400,
+            body: JSON.stringify({ error: 'Invalid bg color format. Use hex color (e.g., #E5E7EB).' }),
+        };
     }
     
     // Function to interpolate between two colors
@@ -75,7 +82,7 @@ exports.handler = async (event, context) => {
         return interpolateColor(colors[segment], colors[segment + 1], segmentProgress);
     }
     
-    // Get the color for the current progress value
+    // Get the color for the current progress value (used for single-color mode)
     const currentColor = getColorFromGradient(colors, value);
     
     // Calculate dimensions based on aspect ratio
@@ -90,9 +97,26 @@ exports.handler = async (event, context) => {
     // Calculate progress width
     const progressWidth = (value / 100) * (width - 40); // Leave 20px padding on each side
     
+    // Build gradient stops if multiple colors are provided
+    const hasGradient = colors.length > 1;
+    const gradientStops = hasGradient
+        ? colors.map((c, i) => {
+            const offset = colors.length === 1 ? 100 : (i / (colors.length - 1)) * 100;
+            return `<stop offset="${offset}%" stop-color="${c}" />`;
+        }).join('')
+        : '';
+
     const svgImage = `
         <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-            <!-- Background bar (gray) -->
+            ${hasGradient ? `
+            <defs>
+                <!-- Left-to-right gradient across the filled portion only -->
+                <linearGradient id="gradProgress" gradientUnits="userSpaceOnUse" x1="20" y1="${barY}" x2="${20 + progressWidth}" y2="${barY}">
+                    ${gradientStops}
+                </linearGradient>
+            </defs>
+            ` : ''}
+            <!-- Background bar (remaining track) -->
             <rect 
                 x="20" 
                 y="${barY}" 
@@ -100,7 +124,7 @@ exports.handler = async (event, context) => {
                 height="${barHeight}" 
                 rx="${borderRadius}" 
                 ry="${borderRadius}" 
-                fill="#E5E7EB" 
+                fill="${backgroundColorParam}" 
                 stroke="none"
             />
             
@@ -112,7 +136,7 @@ exports.handler = async (event, context) => {
                 height="${barHeight}" 
                 rx="${borderRadius}" 
                 ry="${borderRadius}" 
-                fill="${currentColor}" 
+                fill="${hasGradient ? 'url(#gradProgress)' : currentColor}" 
                 stroke="none"
             />
         </svg>

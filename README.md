@@ -12,10 +12,11 @@ Generates a horizontal progress bar with customizable appearance.
 
 **Parameters:**
 - `value` (number, 0-100): Progress percentage (default: 50)
-- `color` (hex color or comma-separated list): Progress bar color(s) (default: #3B82F6)
-  - Single color: `#3B82F6`
-  - Multiple colors: `#FF0000,#00FF00,#0000FF` (creates gradient based on progress value)
+ - `color` (hex color or comma-separated list): Progress bar color(s) (default: #3B82F6)
+   - **Single color**: `#3B82F6`
+   - **Multiple colors**: `#FF0000,#00FF00,#0000FF` (fills the colored portion with a left→right gradient using the provided colors)
 - `aspectRatio` (number): Width-to-height ratio (default: 4)
+ - `bg` / `bgColor` (hex color): Remaining track color (default: #E5E7EB)
 
 **Example:**
 ```
@@ -25,8 +26,7 @@ Generates a horizontal progress bar with customizable appearance.
 
 **Features:**
 - Rounded pill-shaped design
-- Gradient effect for depth
-- Subtle highlight at the top
+- Optional left→right gradient fill across the colored portion when multiple colors are provided
 - Responsive sizing based on aspect ratio
 - Gray background for remaining progress
 
@@ -38,12 +38,13 @@ Generates a circular progress chart with donut shape and centered percentage dis
 
 **Parameters:**
 - `value` (number, 0-100): Progress percentage (default: 50)
-- `color` (hex color or comma-separated list): Progress arc color(s) (default: #3B82F6)
-  - Single color: `#3B82F6`
-  - Multiple colors: `#FF0000,#00FF00,#0000FF` (creates gradient based on progress value)
+ - `color` (hex color or comma-separated list): Progress arc color(s) (default: #3B82F6)
+   - **Single color**: `#3B82F6`
+   - **Multiple colors**: `#FF0000,#00FF00,#0000FF` (renders the progress stroke with a gradient using the provided colors)
 - `size` (number): Overall size in pixels (default: 200)
 - `strokeWidth` (number): Width of the donut ring (default: 20)
 - `padding` (number): Padding around the donut in pixels (default: 10)
+ - `bg` / `bgColor` (hex color): Remaining ring color (default: #E5E7EB)
 
 **Example:**
 ```
@@ -53,7 +54,7 @@ Generates a circular progress chart with donut shape and centered percentage dis
 
 **Features:**
 - Circular donut design with rounded ends
-- Gradient effect on progress arc
+- Optional gradient stroke on the progress arc when multiple colors are provided
 - Centered percentage text in black
 - Gray background for remaining progress
 - Customizable size, stroke width, and padding
@@ -250,6 +251,7 @@ Generates a soft, pastel-style backdrop using overlapping radial gradients with 
 - `/progress-bar.svg?value=50&color=%23F59E0B&aspectRatio=2` - Yellow progress bar with 2:1 aspect ratio
 - `/progress-bar.svg?value=75&color=%23FF0000,%2300FF00` - Red to green gradient, 75% progress (greenish)
 - `/progress-bar.svg?value=30&color=%23FF0000,%23FFFF00,%2300FF00` - Red to yellow to green gradient, 30% progress (reddish-yellow)
+ - `/progress-bar.svg?value=62&color=%2300C6FF,%23007CF0&bg=%23EEF2FF` - Gradient fill with custom background
 
 ### Progress Donut Examples
 - `/progress-donut.svg?value=70` - 70% progress with default blue color
@@ -258,6 +260,7 @@ Generates a soft, pastel-style backdrop using overlapping radial gradients with 
 - `/progress-donut.svg?value=85&color=%23EF4444&padding=20` - Red donut with extra padding
 - `/progress-donut.svg?value=60&color=%23FF0000,%2300FF00` - Red to green gradient, 60% progress (greenish)
 - `/progress-donut.svg?value=40&color=%23FF0000,%23FFFF00,%2300FF00` - Red to yellow to green gradient, 40% progress (yellowish)
+ - `/progress-donut.svg?value=62&color=%2300C6FF,%23007CF0&bg=%23EEF2FF` - Gradient stroke with custom background
 
 ### Pill Examples
 - `/pill.svg?text=New&color=%23EF4444` - Red pill with "New" text

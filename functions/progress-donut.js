@@ -8,6 +8,7 @@ exports.handler = async (event, context) => {
     const size = parseInt(queryParams.size) || 200; // Default size
     const strokeWidth = parseInt(queryParams.strokeWidth) || 20; // Default stroke width
     const padding = parseInt(queryParams.padding) || 10; // Default padding
+    const backgroundColorParam = queryParams.bg || queryParams.bgColor || '#E5E7EB'; // Remaining ring color
     
     // Parse colors - can be single color or comma-separated list
     let colors = [];
@@ -28,6 +29,12 @@ exports.handler = async (event, context) => {
                 body: JSON.stringify({ error: 'Invalid color format. Use hex color (e.g., #3B82F6) or comma-separated list (e.g., #FF0000,#00FF00,#0000FF)' }),
             };
         }
+    }
+    if (!colorRegex.test(backgroundColorParam)) {
+        return {
+            statusCode: 400,
+            body: JSON.stringify({ error: 'Invalid bg color format. Use hex color (e.g., #E5E7EB).' }),
+        };
     }
     
     // Function to interpolate between two colors
@@ -75,7 +82,7 @@ exports.handler = async (event, context) => {
         return interpolateColor(colors[segment], colors[segment + 1], segmentProgress);
     }
     
-    // Get the color for the current progress value
+    // Get the color for the current progress value (single-color fallback)
     const currentColor = getColorFromGradient(colors, value);
     
     // Calculate dimensions with padding
@@ -122,15 +129,34 @@ exports.handler = async (event, context) => {
     // Create the background circle path (full circle)
     const backgroundPath = `M ${centerX + radius} ${centerY} A ${radius} ${radius} 0 1 1 ${centerX + radius - 0.01} ${centerY}`;
     
+    const hasGradient = colors.length > 1;
+    const gradientStops = hasGradient
+        ? colors.map((c, i) => {
+            const offset = colors.length === 1 ? 100 : (i / (colors.length - 1)) * 100;
+            return `<stop offset="${offset}%" stop-color="${c}" />`;
+        }).join('')
+        : '';
+
+    // Arc gradient: make gradient follow the circle by using objectBoundingBox with 0-1 box, or userSpace with a sweep-like approximation.
+    // We'll use stroke with gradient defined as around-the-circle by mapping x1,y1 to the left and x2,y2 to the right, then rotate -90deg so it starts at the top.
     const svgImage = `
         <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-            <!-- Background circle (gray) -->
+            ${hasGradient ? `
+            <defs>
+                <linearGradient id="donutGradient" gradientUnits="userSpaceOnUse"
+                    x1="${centerX - radius}" y1="${centerY}"
+                    x2="${centerX + radius}" y2="${centerY}">
+                    ${gradientStops}
+                </linearGradient>
+            </defs>
+            ` : ''}
+            <!-- Background circle (remaining ring) -->
             <circle 
                 cx="${centerX}" 
                 cy="${centerY}" 
                 r="${radius}" 
                 fill="none" 
-                stroke="#E5E7EB" 
+                stroke="${backgroundColorParam}" 
                 stroke-width="${strokeWidth}"
             />
             
@@ -141,13 +167,13 @@ exports.handler = async (event, context) => {
                     cy="${centerY}" 
                     r="${radius}" 
                     fill="none" 
-                    stroke="${currentColor}" 
+                    stroke="${hasGradient ? 'url(#donutGradient)' : currentColor}" 
                     stroke-width="${strokeWidth}"
                 />` : 
                 `<path 
                     d="${progressPath}" 
                     fill="none" 
-                    stroke="${currentColor}" 
+                    stroke="${hasGradient ? 'url(#donutGradient)' : currentColor}" 
                     stroke-width="${strokeWidth}"
                     stroke-linecap="round"
                 />`
