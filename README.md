@@ -17,7 +17,7 @@ Generates a horizontal progress bar with customizable appearance.
    - **Multiple colors**: `#FF0000,#00FF00,#0000FF` (fills the colored portion with a left→right gradient using the provided colors)
 - `aspectRatio` (number): Width-to-height ratio (default: 4)
   - `bg` / `bgColor` (hex color): Remaining track color (default: #E5E7EB)
-  - `gradientSpan` (string): How the gradient stretches when multiple colors are provided. `progress` (default) = gradient spans the filled portion only. `bar` = gradient spans the entire bar length.
+  - `gradientSpan` (string): How the gradient stretches when multiple colors are provided. `bar` (default) = gradient spans the entire bar length. `progress` = gradient spans the filled portion only.
 
 **Example:**
 ```
@@ -46,7 +46,7 @@ Generates a circular progress chart with donut shape and centered percentage dis
 - `strokeWidth` (number): Width of the donut ring (default: 20)
 - `padding` (number): Padding around the donut in pixels (default: 10)
   - `bg` / `bgColor` (hex color): Remaining ring color (default: #E5E7EB)
-  - `gradientSpan` (string): How the gradient stretches when multiple colors are provided. `progress` (default) = gradient spans the filled arc only. `bar` = gradient spans the full circle diameter.
+  - `gradientSpan` (string): How the gradient stretches when multiple colors are provided. `bar` (default) = gradient spans the full circle diameter. `progress` = gradient spans the filled arc only.
 
 **Example:**
 ```
@@ -254,7 +254,7 @@ Generates a soft, pastel-style backdrop using overlapping radial gradients with 
 - `/progress-bar.svg?value=75&color=%23FF0000,%2300FF00` - Red to green gradient, 75% progress (greenish)
 - `/progress-bar.svg?value=30&color=%23FF0000,%23FFFF00,%2300FF00` - Red to yellow to green gradient, 30% progress (reddish-yellow)
   - `/progress-bar.svg?value=62&color=%2300C6FF,%23007CF0&bg=%23EEF2FF` - Gradient fill with custom background
-  - `/progress-bar.svg?value=62&color=%23FF0000,%2300FF00&gradientSpan=bar` - Full bar gradient regardless of progress width
+  - `/progress-bar.svg?value=62&color=%23FF0000,%2300FF00&gradientSpan=progress` - Compress gradient into the filled width only
 
 ### Progress Donut Examples
 - `/progress-donut.svg?value=70` - 70% progress with default blue color
@@ -264,7 +264,7 @@ Generates a soft, pastel-style backdrop using overlapping radial gradients with 
 - `/progress-donut.svg?value=60&color=%23FF0000,%2300FF00` - Red to green gradient, 60% progress (greenish)
 - `/progress-donut.svg?value=40&color=%23FF0000,%23FFFF00,%2300FF00` - Red to yellow to green gradient, 40% progress (yellowish)
   - `/progress-donut.svg?value=62&color=%2300C6FF,%23007CF0&bg=%23EEF2FF` - Gradient stroke with custom background
-  - `/progress-donut.svg?value=62&color=%23FF0000,%2300FF00&gradientSpan=bar` - Full circle gradient regardless of progress length
+  - `/progress-donut.svg?value=62&color=%23FF0000,%2300FF00&gradientSpan=progress` - Compress gradient into the arc length only
 
 ### Pill Examples
 - `/pill.svg?text=New&color=%23EF4444` - Red pill with "New" text

@@ -8,9 +8,9 @@ exports.handler = async (event, context) => {
     const value = Math.max(0, Math.min(100, parseFloat(queryParams.value) || 50)); // 0-100, default 50
     const colorParam = queryParams.color || '#3B82F6'; // Default blue color
     const backgroundColorParam = queryParams.bg || queryParams.bgColor || '#E5E7EB'; // Remaining track color
-    // Gradient span behavior: 'progress' (default) or 'bar'
-    const gradientSpanParamRaw = (queryParams.gradientSpan || queryParams.gradientScope || 'progress');
-    const gradientSpan = typeof gradientSpanParamRaw === 'string' ? gradientSpanParamRaw.toLowerCase() : 'progress';
+    // Gradient span behavior: 'bar' (default) or 'progress'
+    const gradientSpanParamRaw = (queryParams.gradientSpan || queryParams.gradientScope || 'bar');
+    const gradientSpan = typeof gradientSpanParamRaw === 'string' ? gradientSpanParamRaw.toLowerCase() : 'bar';
     const aspectRatio = parseFloat(queryParams.aspectRatio) || 4; // Default 4:1 aspect ratio
     
     // Parse colors - can be single color or comma-separated list

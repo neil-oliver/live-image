@@ -9,9 +9,9 @@ exports.handler = async (event, context) => {
     const strokeWidth = parseInt(queryParams.strokeWidth) || 20; // Default stroke width
     const padding = parseInt(queryParams.padding) || 10; // Default padding
     const backgroundColorParam = queryParams.bg || queryParams.bgColor || '#E5E7EB'; // Remaining ring color
-    // Gradient span behavior: 'progress' (default) or 'bar'
-    const gradientSpanParamRaw = (queryParams.gradientSpan || queryParams.gradientScope || 'progress');
-    const gradientSpan = typeof gradientSpanParamRaw === 'string' ? gradientSpanParamRaw.toLowerCase() : 'progress';
+    // Gradient span behavior: 'bar' (default) or 'progress'
+    const gradientSpanParamRaw = (queryParams.gradientSpan || queryParams.gradientScope || 'bar');
+    const gradientSpan = typeof gradientSpanParamRaw === 'string' ? gradientSpanParamRaw.toLowerCase() : 'bar';
     
     // Parse colors - can be single color or comma-separated list
     let colors = [];
