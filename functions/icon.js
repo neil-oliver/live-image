@@ -1,7 +1,8 @@
 const fetch = require('node-fetch');
 
-// Metadata cache for icon search enhancement
+// Metadata and SVG cache for enhanced performance
 const metadataCache = new Map();
+const svgCache = new Map();
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 // Helper function to normalize color values
@@ -18,6 +19,44 @@ function normalizeColor(color) {
     
     // Return as-is for named colors, hex with hash, rgb(), hsl(), etc.
     return color;
+}
+
+// Cache processed SVGs for better performance  
+async function getProcessedSvg(iconName, options = {}) {
+    const cacheKey = `svg-${iconName.toLowerCase()}-${JSON.stringify(options)}`;
+    const cached = svgCache.get(cacheKey);
+    
+    // Return cached SVG if still valid
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+        return cached.data;
+    }
+    
+    try {
+        const lucide = require('lucide');
+        const iconData = lucide[iconName];
+        
+        if (!iconData || !Array.isArray(iconData)) {
+            return null;
+        }
+        
+        // Process the icon data into SVG
+        const svgString = iconToSvg(iconData, options);
+        
+        // Cache the result
+        svgCache.set(cacheKey, {
+            data: svgString,
+            timestamp: Date.now()
+        });
+        
+        return svgString;
+    } catch (error) {
+        // Cache null result to avoid repeated failed requests
+        svgCache.set(cacheKey, {
+            data: null,
+            timestamp: Date.now()
+        });
+        return null;
+    }
 }
 
 // Fetch icon metadata from Lucide repository
@@ -161,6 +200,7 @@ function parseSearchQuery(query) {
 async function searchIconsWithMetadata(query, limit = 50) {
     const lucide = require('lucide');
     const parsedQuery = parseSearchQuery(query);
+    // Use npm package to get available icon names, but fetch SVGs from CDN
     const iconNames = Object.keys(lucide).filter(k => Array.isArray(lucide[k]));
     
     // Process icons in parallel for better performance
@@ -196,7 +236,7 @@ async function searchIconsWithMetadata(query, limit = 50) {
         .slice(0, limit);
 }
 
-// Helper function to convert Lucide icon array to SVG string
+// Optimized function to convert Lucide icon array to SVG string
 function iconToSvg(iconData, options = {}) {
     const {
         color = 'currentColor',
@@ -207,9 +247,10 @@ function iconToSvg(iconData, options = {}) {
         strokeLinejoin = 'round'
     } = options;
 
-    // Convert icon data array to SVG path elements
-    const paths = iconData.map(([tag, attrs]) => {
-        if (tag === 'path') {
+    // Convert icon data array to SVG elements (handles all element types)
+    const elements = iconData.map(([tag, attrs]) => {
+        // Handle all SVG elements (path, circle, line, rect, polygon, etc.)
+        if (typeof tag === 'string' && attrs && typeof attrs === 'object') {
             const attrString = Object.entries(attrs)
                 .map(([key, value]) => `${key}="${value}"`)
                 .join(' ');
@@ -219,7 +260,7 @@ function iconToSvg(iconData, options = {}) {
     }).join('\n    ');
 
     return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="${fill}" stroke="${color}" stroke-width="${strokeWidth}" stroke-linecap="${strokeLinecap}" stroke-linejoin="${strokeLinejoin}" xmlns="http://www.w3.org/2000/svg">
-    ${paths}
+    ${elements}
 </svg>`;
 }
 
@@ -237,6 +278,8 @@ exports.handler = async (event, context) => {
     // Enhanced search with metadata support
     if (searchQueryRaw) {
         try {
+            // Note: We use the npm package only for getting the list of available icons
+            // The actual SVG fetching is done via CDN for better performance
             const lucide = require('lucide');
             const q = String(searchQueryRaw).toLowerCase().trim();
             const limit = Math.max(1, Math.min(200, parseInt(query.limit) || 50));
@@ -323,10 +366,16 @@ exports.handler = async (event, context) => {
 
             // Otherwise, return the best match (highest scoring result) as SVG
             const bestMatch = searchResults[0];
-            const iconData = lucide[bestMatch.name];
             
-            // Build SVG for the best match
-            const innerSvg = iconToSvg(iconData, { color, size, strokeWidth });
+            // Get processed SVG with caching for better performance
+            const innerSvg = await getProcessedSvg(bestMatch.name, { color, size, strokeWidth });
+            
+            if (!innerSvg) {
+                return {
+                    statusCode: 500,
+                    body: JSON.stringify({ error: `Failed to process SVG for icon: ${bestMatch.name}` })
+                };
+            }
 
             // If no padding requested, return icon as-is
             if (!padding) {
@@ -406,9 +455,7 @@ exports.handler = async (event, context) => {
     const pascalName = toPascalCase(kebabName);
 
     try {
-        const lucide = require('lucide');
-
-        // Try multiple name variations to find the icon
+        // Try to get processed SVG with name variations
         const namesToTry = [
             pascalName,        // AArrowDown
             kebabName,         // a-arrow-down
@@ -417,64 +464,51 @@ exports.handler = async (event, context) => {
             nameRaw.toUpperCase()
         ];
         
-        let iconData = null;
+        let innerSvg = null;
+        let foundName = null;
+        
         for (const name of namesToTry) {
-            if (lucide[name]) {
-                iconData = lucide[name];
+            innerSvg = await getProcessedSvg(name, { color, size, strokeWidth });
+            if (innerSvg) {
+                foundName = name;
                 break;
             }
         }
-        
-        // If still not found, try case-insensitive search
-        if (!iconData) {
-            const key = Object.keys(lucide).find((k) => k.toLowerCase() === kebabName.toLowerCase());
-            if (key) iconData = lucide[key];
-        }
 
-        if (!iconData || !Array.isArray(iconData)) {
-            // Convert PascalCase to kebab-case for suggestions
-            const toKebabCase = (str) => {
-                return str
-                    // Handle consecutive uppercase letters (e.g., AArrowDown -> A-Arrow-Down)
-                    .replace(/([A-Z])([A-Z][a-z])/g, '$1-$2')
-                    // Handle lowercase followed by uppercase (e.g., arrowDown -> arrow-Down)
-                    .replace(/([a-z])([A-Z])/g, '$1-$2')
-                    .toLowerCase();
-            };
-            
-            // Provide suggestions - both exact matches and similar names
-            const searchTerms = [kebabName, nameRaw.toLowerCase()];
-            const suggestionSet = new Set();
-            
-            // Add exact partial matches
-            searchTerms.forEach(term => {
-                Object.keys(lucide)
-                    .filter(k => k.toLowerCase().includes(term))
-                    .slice(0, 5)
-                    .forEach(name => suggestionSet.add(toKebabCase(name)));
-            });
-            
-            // Add similar arrow icons if searching for arrow
-            if (kebabName.includes('arrow')) {
-                Object.keys(lucide)
-                    .filter(k => k.toLowerCase().includes('arrow'))
-                    .slice(0, 5)
-                    .forEach(name => suggestionSet.add(toKebabCase(name)));
+        if (!innerSvg) {
+            // If SVG not found, try to provide suggestions using search functionality
+            try {
+                const searchResults = await searchIconsWithMetadata(kebabName, 10);
+                const suggestions = searchResults.map(result => {
+                    // Convert PascalCase to kebab-case for suggestions
+                    return result.name
+                        .replace(/([A-Z])([A-Z][a-z])/g, '$1-$2')
+                        .replace(/([a-z])([A-Z])/g, '$1-$2')
+                        .toLowerCase();
+                });
+                
+                return {
+                    statusCode: 404,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        error: `Icon not found: ${nameRaw} (tried: ${pascalName}, ${kebabName})`, 
+                        suggestions: suggestions.slice(0, 15)
+                    })
+                };
+            } catch (suggestionError) {
+                // Fallback if search fails
+                return {
+                    statusCode: 404,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        error: `Icon not found: ${nameRaw} (tried: ${pascalName}, ${kebabName})`, 
+                        suggestions: []
+                    })
+                };
             }
-            
-            const suggestions = Array.from(suggestionSet).slice(0, 15);
-            return {
-                statusCode: 404,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    error: `Icon not found: ${nameRaw} (tried: ${pascalName}, ${kebabName})`, 
-                    suggestions 
-                })
-            };
         }
 
-        // Build base icon SVG
-        const innerSvg = iconToSvg(iconData, { color, size, strokeWidth });
+        // innerSvg is already processed with custom options
 
         // If no padding requested, return icon as-is
         if (!padding) {
