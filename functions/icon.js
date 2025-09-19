@@ -1,3 +1,9 @@
+const fetch = require('node-fetch');
+
+// Metadata cache for icon search enhancement
+const metadataCache = new Map();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
 // Helper function to normalize color values
 function normalizeColor(color) {
     if (!color || color === 'currentColor') {
@@ -12,6 +18,182 @@ function normalizeColor(color) {
     
     // Return as-is for named colors, hex with hash, rgb(), hsl(), etc.
     return color;
+}
+
+// Fetch icon metadata from Lucide repository
+async function fetchIconMetadata(iconName) {
+    const cacheKey = iconName.toLowerCase();
+    const cached = metadataCache.get(cacheKey);
+    
+    // Return cached data if still valid
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+        return cached.data;
+    }
+    
+    try {
+        // Convert PascalCase to kebab-case for URL
+        const kebabName = iconName
+            .replace(/([A-Z])([A-Z][a-z])/g, '$1-$2')
+            .replace(/([a-z])([A-Z])/g, '$1-$2')
+            .toLowerCase();
+            
+        const response = await fetch(`https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/${kebabName}.json`);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        
+        const metadata = await response.json();
+        
+        // Cache the result
+        metadataCache.set(cacheKey, {
+            data: metadata,
+            timestamp: Date.now()
+        });
+        
+        return metadata;
+    } catch (error) {
+        // Cache null result to avoid repeated failed requests
+        metadataCache.set(cacheKey, {
+            data: null,
+            timestamp: Date.now()
+        });
+        return null;
+    }
+}
+
+// Calculate search relevance score for an icon
+function calculateIconScore(iconName, query, metadata) {
+    let score = 0;
+    const normalizedQuery = query.toLowerCase().trim();
+    const normalizedName = iconName.toLowerCase();
+    
+    // Name matching (highest priority)
+    if (normalizedName === normalizedQuery) {
+        score += 100; // Exact match
+    } else if (normalizedName.startsWith(normalizedQuery)) {
+        score += 90; // Starts with query
+    } else if (normalizedName.includes(normalizedQuery)) {
+        score += 80; // Contains query
+        // Bonus for shorter names (more relevant)
+        score += Math.max(0, 10 - (normalizedName.length - normalizedQuery.length) / 2);
+    }
+    
+    // Metadata-based scoring
+    if (metadata) {
+        // Tag matching
+        if (metadata.tags) {
+            for (const tag of metadata.tags) {
+                const normalizedTag = tag.toLowerCase();
+                if (normalizedTag === normalizedQuery) {
+                    score += 70; // Exact tag match
+                } else if (normalizedTag.startsWith(normalizedQuery)) {
+                    score += 60; // Tag starts with query
+                } else if (normalizedTag.includes(normalizedQuery)) {
+                    score += 50; // Tag contains query
+                }
+            }
+        }
+        
+        // Category matching
+        if (metadata.categories) {
+            for (const category of metadata.categories) {
+                const normalizedCategory = category.toLowerCase();
+                if (normalizedCategory === normalizedQuery) {
+                    score += 40; // Exact category match
+                } else if (normalizedCategory.includes(normalizedQuery)) {
+                    score += 30; // Category contains query
+                }
+            }
+        }
+        
+        // Alias matching
+        if (metadata.aliases) {
+            for (const alias of metadata.aliases) {
+                const normalizedAlias = alias.name.toLowerCase();
+                if (normalizedAlias === normalizedQuery) {
+                    score += 95; // Exact alias match (slightly less than name)
+                } else if (normalizedAlias.includes(normalizedQuery)) {
+                    score += 75; // Alias contains query
+                }
+            }
+        }
+    }
+    
+    // Multi-word query bonus
+    const queryWords = normalizedQuery.split(/\s+/).filter(w => w.length > 0);
+    if (queryWords.length > 1) {
+        let matchedWords = 0;
+        for (const word of queryWords) {
+            if (normalizedName.includes(word) || 
+                (metadata?.tags?.some(tag => tag.toLowerCase().includes(word))) ||
+                (metadata?.categories?.some(cat => cat.toLowerCase().includes(word)))) {
+                matchedWords++;
+            }
+        }
+        score += (matchedWords - 1) * 10; // Bonus for additional matched words
+    }
+    
+    return score;
+}
+
+// Parse advanced search queries
+function parseSearchQuery(query) {
+    const normalizedQuery = query.toLowerCase().trim();
+    let searchTerms = normalizedQuery;
+    let categoryFilter = null;
+    
+    // Extract category filter: "category:communication phone"
+    const categoryMatch = normalizedQuery.match(/category:(\w+)/);
+    if (categoryMatch) {
+        categoryFilter = categoryMatch[1];
+        searchTerms = normalizedQuery.replace(/category:\w+\s*/, '').trim();
+    }
+    
+    return {
+        searchTerms,
+        categoryFilter,
+        originalQuery: query
+    };
+}
+
+// Enhanced icon search with metadata
+async function searchIconsWithMetadata(query, limit = 50) {
+    const lucide = require('lucide');
+    const parsedQuery = parseSearchQuery(query);
+    const iconNames = Object.keys(lucide).filter(k => Array.isArray(lucide[k]));
+    
+    // Process icons in parallel for better performance
+    const iconPromises = iconNames.map(async (iconName) => {
+        const metadata = await fetchIconMetadata(iconName);
+        
+        // Apply category filter if specified
+        if (parsedQuery.categoryFilter && metadata?.categories) {
+            const hasCategory = metadata.categories.some(cat => 
+                cat.toLowerCase().includes(parsedQuery.categoryFilter)
+            );
+            if (!hasCategory) {
+                return null; // Skip this icon
+            }
+        }
+        
+        const score = calculateIconScore(iconName, parsedQuery.searchTerms, metadata);
+        
+        return score > 0 ? {
+            name: iconName,
+            score,
+            metadata: metadata || {}
+        } : null;
+    });
+    
+    // Wait for all metadata fetches to complete
+    const results = await Promise.all(iconPromises);
+    
+    // Filter out null results and sort by score
+    return results
+        .filter(result => result !== null)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, limit);
 }
 
 // Helper function to convert Lucide icon array to SVG string
@@ -52,7 +234,7 @@ exports.handler = async (event, context) => {
     const strokeWidth = Math.max(0.25, Math.min(8, parseFloat(query.strokeWidth) || 2));
     const padding = Math.max(0, Math.min(200, parseInt(query.padding) || 10));
 
-    // If searching, either return JSON list (with list=true) or best match icon (default)
+    // Enhanced search with metadata support
     if (searchQueryRaw) {
         try {
             const lucide = require('lucide');
@@ -70,25 +252,58 @@ exports.handler = async (event, context) => {
                     .toLowerCase();
             };
 
-            const matchingIcons = Object.keys(lucide)
-                .filter((n) => n.toLowerCase().includes(q) && Array.isArray(lucide[n]))
-                .slice(0, limit);
+            // Use enhanced search with metadata
+            const searchResults = await searchIconsWithMetadata(q, limit);
 
-            if (matchingIcons.length === 0) {
+            if (searchResults.length === 0) {
+                // Enhanced fallback: suggest by category or provide semantic suggestions
+                const parsedQuery = parseSearchQuery(q);
+                const suggestions = [];
+                
+                // Try category suggestions
+                const categoryKeywords = {
+                    'love': 'heart',
+                    'call': 'phone', 
+                    'telephone': 'phone',
+                    'email': 'mail',
+                    'search': 'search',
+                    'find': 'search',
+                    'communication': ['phone', 'mail', 'message'],
+                    'arrows': ['arrow-up', 'arrow-down', 'arrow-left', 'arrow-right'],
+                    'social': ['heart', 'share', 'thumbs-up']
+                };
+                
+                for (const [keyword, suggestion] of Object.entries(categoryKeywords)) {
+                    if (parsedQuery.searchTerms.includes(keyword)) {
+                        if (Array.isArray(suggestion)) {
+                            suggestions.push(...suggestion);
+                        } else {
+                            suggestions.push(suggestion);
+                        }
+                    }
+                }
+                
                 return {
                     statusCode: 404,
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
                         error: `No icons found matching: ${q}`, 
                         query: q,
+                        suggestions: suggestions.slice(0, 5),
+                        tip: 'Try using category filters like "category:communication phone" or semantic terms like "love" for heart',
                         results: []
                     })
                 };
             }
 
-            const results = matchingIcons.map(name => toKebabCase(name));
+            const results = searchResults.map(result => ({
+                name: toKebabCase(result.name),
+                score: result.score,
+                categories: result.metadata.categories || [],
+                tags: result.metadata.tags || []
+            }));
 
-            // If list parameter is present, return JSON list
+            // If list parameter is present, return enhanced JSON list with metadata
             if (returnList) {
                 return {
                     statusCode: 200,
@@ -97,13 +312,18 @@ exports.handler = async (event, context) => {
                         'Access-Control-Allow-Origin': '*',
                         'Cache-Control': 'public, max-age=300'
                     },
-                    body: JSON.stringify({ query: q, count: results.length, results })
+                    body: JSON.stringify({ 
+                        query: q, 
+                        count: results.length, 
+                        results: results.map(r => r.name),
+                        enhanced_results: results // Include metadata for advanced clients
+                    })
                 };
             }
 
-            // Otherwise, return the best match (first result) as SVG
-            const bestMatchName = matchingIcons[0];
-            const iconData = lucide[bestMatchName];
+            // Otherwise, return the best match (highest scoring result) as SVG
+            const bestMatch = searchResults[0];
+            const iconData = lucide[bestMatch.name];
             
             // Build SVG for the best match
             const innerSvg = iconToSvg(iconData, { color, size, strokeWidth });
@@ -115,7 +335,11 @@ exports.handler = async (event, context) => {
                     headers: {
                         'Content-Type': 'image/svg+xml',
                         'Cache-Control': 'public, max-age=300',
-                        'Access-Control-Allow-Origin': '*'
+                        'Access-Control-Allow-Origin': '*',
+                        'X-Icon-Name': bestMatch.name,
+                        'X-Match-Score': bestMatch.score.toString(),
+                        'X-Categories': (bestMatch.metadata.categories || []).join(','),
+                        'X-Tags': (bestMatch.metadata.tags || []).join(',')
                     },
                     body: innerSvg
                 };
@@ -134,14 +358,18 @@ exports.handler = async (event, context) => {
                 headers: {
                     'Content-Type': 'image/svg+xml',
                     'Cache-Control': 'public, max-age=300',
-                    'Access-Control-Allow-Origin': '*'
+                    'Access-Control-Allow-Origin': '*',
+                    'X-Icon-Name': bestMatch.name,
+                    'X-Match-Score': bestMatch.score.toString(),
+                    'X-Categories': (bestMatch.metadata.categories || []).join(','),
+                    'X-Tags': (bestMatch.metadata.tags || []).join(',')
                 },
                 body: wrapped
             };
         } catch (err) {
             return {
                 statusCode: 500,
-                body: JSON.stringify({ error: 'Search failed', details: err.message })
+                body: JSON.stringify({ error: 'Enhanced search failed', details: err.message })
             };
         }
     }
