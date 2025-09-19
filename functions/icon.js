@@ -20,6 +20,9 @@ exports.handler = async (event, context) => {
             // Convert PascalCase to kebab-case for consistent naming
             const toKebabCase = (str) => {
                 return str
+                    // Handle consecutive uppercase letters (e.g., AArrowDown -> A-Arrow-Down)
+                    .replace(/([A-Z])([A-Z][a-z])/g, '$1-$2')
+                    // Handle lowercase followed by uppercase (e.g., arrowDown -> arrow-Down)
                     .replace(/([a-z])([A-Z])/g, '$1-$2')
                     .toLowerCase();
             };
@@ -58,7 +61,13 @@ exports.handler = async (event, context) => {
     const toPascalCase = (str) => {
         return str
             .split('-')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .map(word => {
+                // Handle single letters (like 'a' in 'a-arrow-down')
+                if (word.length === 1) {
+                    return word.toUpperCase();
+                }
+                return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+            })
             .join('');
     };
 
@@ -75,18 +84,61 @@ exports.handler = async (event, context) => {
         const mod = await import('lucide');
         const icons = mod.icons || {};
 
-        // Try PascalCase first, then exact kebab-case, then case-insensitive search
-        let iconDef = icons[pascalName] || icons[kebabName];
+        // Try multiple name variations to find the icon
+        const namesToTry = [
+            pascalName,        // AArrowDown
+            kebabName,         // a-arrow-down
+            nameRaw,           // original input
+            nameRaw.toLowerCase(),
+            nameRaw.toUpperCase()
+        ];
+        
+        let iconDef = null;
+        for (const name of namesToTry) {
+            if (icons[name]) {
+                iconDef = icons[name];
+                break;
+            }
+        }
+        
+        // If still not found, try case-insensitive search
         if (!iconDef) {
-            const key = Object.keys(icons).find((k) => k.toLowerCase() === kebabName);
+            const key = Object.keys(icons).find((k) => k.toLowerCase() === kebabName.toLowerCase());
             if (key) iconDef = icons[key];
         }
 
         if (!iconDef || typeof iconDef.toSvg !== 'function') {
-            // Provide a few suggestions based on partial matches
-            const suggestions = Object.keys(icons)
-                .filter((k) => k.toLowerCase().includes(kebabName.toLowerCase()))
-                .slice(0, 10);
+            // Convert PascalCase to kebab-case for suggestions
+            const toKebabCase = (str) => {
+                return str
+                    // Handle consecutive uppercase letters (e.g., AArrowDown -> A-Arrow-Down)
+                    .replace(/([A-Z])([A-Z][a-z])/g, '$1-$2')
+                    // Handle lowercase followed by uppercase (e.g., arrowDown -> arrow-Down)
+                    .replace(/([a-z])([A-Z])/g, '$1-$2')
+                    .toLowerCase();
+            };
+            
+            // Provide suggestions - both exact matches and similar names
+            const searchTerms = [kebabName, nameRaw.toLowerCase()];
+            const suggestionSet = new Set();
+            
+            // Add exact partial matches
+            searchTerms.forEach(term => {
+                Object.keys(icons)
+                    .filter(k => k.toLowerCase().includes(term))
+                    .slice(0, 5)
+                    .forEach(name => suggestionSet.add(toKebabCase(name)));
+            });
+            
+            // Add similar arrow icons if searching for arrow
+            if (kebabName.includes('arrow')) {
+                Object.keys(icons)
+                    .filter(k => k.toLowerCase().includes('arrow'))
+                    .slice(0, 5)
+                    .forEach(name => suggestionSet.add(toKebabCase(name)));
+            }
+            
+            const suggestions = Array.from(suggestionSet).slice(0, 15);
             return {
                 statusCode: 404,
                 headers: { 'Content-Type': 'application/json' },
