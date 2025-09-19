@@ -1,3 +1,19 @@
+// Helper function to normalize color values
+function normalizeColor(color) {
+    if (!color || color === 'currentColor') {
+        return color;
+    }
+    
+    // Check if it's a hex color without hash
+    const hexWithoutHash = /^[A-Fa-f0-9]{6}$|^[A-Fa-f0-9]{3}$/;
+    if (hexWithoutHash.test(color)) {
+        return '#' + color;
+    }
+    
+    // Return as-is for named colors, hex with hash, rgb(), hsl(), etc.
+    return color;
+}
+
 // Helper function to convert Lucide icon array to SVG string
 function iconToSvg(iconData, options = {}) {
     const {
@@ -31,7 +47,7 @@ exports.handler = async (event, context) => {
     // Parameters
     const nameRaw = query.name || query.icon || query.iconName || '';
     const searchQueryRaw = query.search || '';
-    const color = query.color || 'currentColor';
+    const color = normalizeColor(query.color || 'currentColor');
     const size = Math.max(8, Math.min(1024, parseInt(query.size) || 24));
     const strokeWidth = Math.max(0.25, Math.min(8, parseFloat(query.strokeWidth) || 2));
     const padding = Math.max(0, Math.min(200, parseInt(query.padding) || 10));
