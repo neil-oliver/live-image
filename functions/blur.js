@@ -53,7 +53,9 @@ function toRgbString({ r, g, b }) {
   return `rgb(${r}, ${g}, ${b})`;
 }
 
-exports.handler = async (event) => {
+const { builder } = require('@netlify/functions');
+
+const blurHandler = async (event) => {
   const q = event.queryStringParameters || {};
 
   // Dimensions
@@ -146,11 +148,13 @@ exports.handler = async (event) => {
     statusCode: 200,
     headers: {
       'Content-Type': 'image/svg+xml',
-      'Cache-Control': 'public, max-age=300',
+      'Cache-Control': 'public, max-age=31536000', // 1 year since it's cached at edge
       'Access-Control-Allow-Origin': '*',
     },
     body: svg,
   };
 };
+
+exports.handler = builder(blurHandler);
 
 

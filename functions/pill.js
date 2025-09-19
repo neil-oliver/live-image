@@ -1,4 +1,6 @@
-exports.handler = async (event, context) => {
+const { builder } = require('@netlify/functions');
+
+const pillHandler = async (event, context) => {
     // Parse query parameters
     const queryParams = event.queryStringParameters || {};
     
@@ -82,7 +84,7 @@ exports.handler = async (event, context) => {
             statusCode: 200,
             headers: {
                 'Content-Type': 'image/svg+xml',
-                'Cache-Control': 'public, max-age=300', // Cache for 5 minutes
+                'Cache-Control': 'public, max-age=31536000', // 1 year since it's cached at edge
             },
             body: svgImage,
         };
@@ -92,4 +94,6 @@ exports.handler = async (event, context) => {
             body: JSON.stringify({ error: 'Failed to generate pill SVG' }),
         };
     }
-}; 
+};
+
+exports.handler = builder(pillHandler); 

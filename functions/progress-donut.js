@@ -1,4 +1,6 @@
-exports.handler = async (event, context) => {
+const { builder } = require('@netlify/functions');
+
+const progressDonutHandler = async (event, context) => {
     // Parse query parameters
     const queryParams = event.queryStringParameters || {};
     
@@ -207,7 +209,7 @@ exports.handler = async (event, context) => {
             statusCode: 200,
             headers: {
                 'Content-Type': 'image/svg+xml',
-                'Cache-Control': 'public, max-age=300', // Cache for 5 minutes
+                'Cache-Control': 'public, max-age=31536000', // 1 year since it's cached at edge
             },
             body: svgImage,
         };
@@ -217,4 +219,6 @@ exports.handler = async (event, context) => {
             body: JSON.stringify({ error: 'Failed to generate progress donut SVG' }),
         };
     }
-}; 
+};
+
+exports.handler = builder(progressDonutHandler); 

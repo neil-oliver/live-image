@@ -15,5 +15,8 @@
     "pnglib": "^0.0.1",
     "sharp": "^0.33.5",
     "lucide": "^0.544.0"
+  },
+  "devDependencies": {
+    "@netlify/functions": "^2.8.1"
   }
 }

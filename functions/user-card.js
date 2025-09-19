@@ -1,6 +1,7 @@
+const { builder } = require('@netlify/functions');
 const fetch = require('node-fetch');
 
-exports.handler = async (event, context) => {
+const userCardHandler = async (event, context) => {
     // Parse query parameters
     const queryParams = event.queryStringParameters || {};
     
@@ -262,7 +263,7 @@ exports.handler = async (event, context) => {
             statusCode: 200,
             headers: {
                 'Content-Type': 'image/svg+xml',
-                'Cache-Control': 'public, max-age=300', // Cache for 5 minutes
+                'Cache-Control': 'public, max-age=31536000', // 1 year since it's cached at edge
                 'Access-Control-Allow-Origin': '*', // Allow cross-origin requests
             },
             body: svgImage,
@@ -273,4 +274,6 @@ exports.handler = async (event, context) => {
             body: JSON.stringify({ error: 'Failed to generate user card SVG' }),
         };
     }
-}; 
+};
+
+exports.handler = builder(userCardHandler); 

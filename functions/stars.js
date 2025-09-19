@@ -1,4 +1,6 @@
-exports.handler = async (event, context) => {
+const { builder } = require('@netlify/functions');
+
+const starsHandler = async (event, context) => {
     // Parse query parameters
     const queryParams = event.queryStringParameters || {};
     
@@ -42,7 +44,7 @@ exports.handler = async (event, context) => {
             statusCode: 200,
             headers: {
                 'Content-Type': 'image/svg+xml',
-                'Cache-Control': 'public, max-age=300', // Cache for 5 minutes
+                'Cache-Control': 'public, max-age=31536000', // 1 year since it's cached at edge
                 'Access-Control-Allow-Origin': '*'
             },
             body: svg
@@ -55,6 +57,8 @@ exports.handler = async (event, context) => {
         };
     }
 };
+
+exports.handler = builder(starsHandler);
 
 /**
  * Create a star rating SVG
