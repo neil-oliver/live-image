@@ -48,3 +48,8 @@
   from = "/blur.svg"
   to = "/.netlify/functions/blur"
   status = 200
+
+[[redirects]]
+  from = "/icon.svg"
+  to = "/.netlify/functions/icon"
+  status = 200
