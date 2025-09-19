@@ -228,7 +228,7 @@ exports.handler = async (event, context) => {
 
     // Parameters
     const nameRaw = query.name || query.icon || query.iconName || '';
-    const searchQueryRaw = query.search || '';
+    const searchQueryRaw = query.search || query.list || '';
     const color = normalizeColor(query.color || 'currentColor');
     const size = Math.max(8, Math.min(1024, parseInt(query.size) || 24));
     const strokeWidth = Math.max(0.25, Math.min(8, parseFloat(query.strokeWidth) || 2));
