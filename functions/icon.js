@@ -1,3 +1,30 @@
+// Helper function to convert Lucide icon array to SVG string
+function iconToSvg(iconData, options = {}) {
+    const {
+        color = 'currentColor',
+        size = 24,
+        strokeWidth = 2,
+        fill = 'none',
+        strokeLinecap = 'round',
+        strokeLinejoin = 'round'
+    } = options;
+
+    // Convert icon data array to SVG path elements
+    const paths = iconData.map(([tag, attrs]) => {
+        if (tag === 'path') {
+            const attrString = Object.entries(attrs)
+                .map(([key, value]) => `${key}="${value}"`)
+                .join(' ');
+            return `<${tag} ${attrString} />`;
+        }
+        return '';
+    }).join('\n    ');
+
+    return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="${fill}" stroke="${color}" stroke-width="${strokeWidth}" stroke-linecap="${strokeLinecap}" stroke-linejoin="${strokeLinejoin}" xmlns="http://www.w3.org/2000/svg">
+    ${paths}
+</svg>`;
+}
+
 exports.handler = async (event, context) => {
     const query = event.queryStringParameters || {};
 
@@ -12,8 +39,7 @@ exports.handler = async (event, context) => {
     // If searching, return JSON list of matching icon names
     if (searchQueryRaw) {
         try {
-            const mod = await import('lucide');
-            const icons = mod.icons || {};
+            const lucide = require('lucide');
             const q = String(searchQueryRaw).toLowerCase().trim();
             const limit = Math.max(1, Math.min(200, parseInt(query.limit) || 50));
 
@@ -27,8 +53,8 @@ exports.handler = async (event, context) => {
                     .toLowerCase();
             };
 
-            const results = Object.keys(icons)
-                .filter((n) => n.toLowerCase().includes(q))
+            const results = Object.keys(lucide)
+                .filter((n) => n.toLowerCase().includes(q) && Array.isArray(lucide[n]))
                 .slice(0, limit)
                 .map(name => toKebabCase(name));
 
@@ -81,8 +107,7 @@ exports.handler = async (event, context) => {
     const pascalName = toPascalCase(kebabName);
 
     try {
-        const mod = await import('lucide');
-        const icons = mod.icons || {};
+        const lucide = require('lucide');
 
         // Try multiple name variations to find the icon
         const namesToTry = [
@@ -93,21 +118,21 @@ exports.handler = async (event, context) => {
             nameRaw.toUpperCase()
         ];
         
-        let iconDef = null;
+        let iconData = null;
         for (const name of namesToTry) {
-            if (icons[name]) {
-                iconDef = icons[name];
+            if (lucide[name]) {
+                iconData = lucide[name];
                 break;
             }
         }
         
         // If still not found, try case-insensitive search
-        if (!iconDef) {
-            const key = Object.keys(icons).find((k) => k.toLowerCase() === kebabName.toLowerCase());
-            if (key) iconDef = icons[key];
+        if (!iconData) {
+            const key = Object.keys(lucide).find((k) => k.toLowerCase() === kebabName.toLowerCase());
+            if (key) iconData = lucide[key];
         }
 
-        if (!iconDef || typeof iconDef.toSvg !== 'function') {
+        if (!iconData || !Array.isArray(iconData)) {
             // Convert PascalCase to kebab-case for suggestions
             const toKebabCase = (str) => {
                 return str
@@ -124,7 +149,7 @@ exports.handler = async (event, context) => {
             
             // Add exact partial matches
             searchTerms.forEach(term => {
-                Object.keys(icons)
+                Object.keys(lucide)
                     .filter(k => k.toLowerCase().includes(term))
                     .slice(0, 5)
                     .forEach(name => suggestionSet.add(toKebabCase(name)));
@@ -132,7 +157,7 @@ exports.handler = async (event, context) => {
             
             // Add similar arrow icons if searching for arrow
             if (kebabName.includes('arrow')) {
-                Object.keys(icons)
+                Object.keys(lucide)
                     .filter(k => k.toLowerCase().includes('arrow'))
                     .slice(0, 5)
                     .forEach(name => suggestionSet.add(toKebabCase(name)));
@@ -150,7 +175,7 @@ exports.handler = async (event, context) => {
         }
 
         // Build base icon SVG
-        const innerSvg = iconDef.toSvg({ color, size, strokeWidth });
+        const innerSvg = iconToSvg(iconData, { color, size, strokeWidth });
 
         // If no padding requested, return icon as-is
         if (!padding) {
