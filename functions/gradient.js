@@ -1,5 +1,3 @@
-const { builder } = require('@netlify/functions');
-
 const gradientHandler = async (event, context) => {
     // Parse query parameters
     const queryParams = event.queryStringParameters || {};
@@ -163,4 +161,4 @@ const gradientHandler = async (event, context) => {
     }
 };
 
-exports.handler = builder(gradientHandler); 
+exports.handler = gradientHandler; 

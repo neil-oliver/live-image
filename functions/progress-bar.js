@@ -1,5 +1,5 @@
 
-const { builder } = require('@netlify/functions');
+// Removed builder import - was causing Method Not Allowed errors
 
 const progressBarHandler = async (event, context) => {
     // Parse query parameters
@@ -177,4 +177,4 @@ const progressBarHandler = async (event, context) => {
     }
 };
 
-exports.handler = builder(progressBarHandler); 
+exports.handler = progressBarHandler; 

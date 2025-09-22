@@ -1,5 +1,3 @@
-const { builder } = require('@netlify/functions');
-
 const datetimeHandler = async (event, context) => {
     // Parse query parameters
     const queryParams = event.queryStringParameters || {};
@@ -188,4 +186,4 @@ function createCalendarClockSVG(timestamp = Date.now(), opts = {}) {
     return svg;
 }
 
-exports.handler = builder(datetimeHandler); 
+exports.handler = datetimeHandler; 
