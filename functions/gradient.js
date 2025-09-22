@@ -3,15 +3,11 @@ exports.handler = async (event, context) => {
     const queryParams = event.queryStringParameters || {};
     
     // Extract parameters with defaults
-    const colors = queryParams.colors || '#FF0000'; // Default red color (changed for testing)
+    const colors = queryParams.colors || '#3B82F6'; // Default blue color
     const direction = queryParams.direction || 'to right'; // Default direction
     const width = parseInt(queryParams.width) || 500; // Default width
     const height = parseInt(queryParams.height) || 300; // Default height
     const stops = queryParams.stops; // Optional stop positions
-    
-    // Debug logging
-    console.log('Query params:', queryParams);
-    console.log('Colors parameter:', colors);
     
     // Validate dimensions
     if (width < 1 || width > 2000 || height < 1 || height > 2000) {
@@ -23,14 +19,11 @@ exports.handler = async (event, context) => {
     
     // Parse colors (comma-separated)
     const colorArray = colors.split(',').map(c => c.trim());
-    console.log('Color array:', colorArray);
     
     // Validate colors (hex validation with optional alpha)
     const colorRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})([A-Fa-f0-9]{2})?$/;
     for (const color of colorArray) {
-        console.log('Validating color:', color, 'Valid:', colorRegex.test(color));
         if (!colorRegex.test(color)) {
-            console.log('Color validation failed for:', color);
             return {
                 statusCode: 400,
                 body: JSON.stringify({ error: 'Invalid color format. Use hex colors (e.g., #3B82F6 or #3B82F680 for transparency)' }),
