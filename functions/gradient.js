@@ -5,7 +5,7 @@ const gradientHandler = async (event, context) => {
     const queryParams = event.queryStringParameters || {};
     
     // Extract parameters with defaults
-    const colors = queryParams.colors || '#3B82F6'; // Default blue color
+    const colors = queryParams.colors || '#FF0000'; // Default red color (changed for testing)
     const direction = queryParams.direction || 'to right'; // Default direction
     const width = parseInt(queryParams.width) || 500; // Default width
     const height = parseInt(queryParams.height) || 300; // Default height
