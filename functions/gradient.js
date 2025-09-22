@@ -45,11 +45,16 @@ const gradientHandler = async (event, context) => {
         }
     } else {
         // Generate evenly distributed stops
-        stopArray = colorArray.map((_, index) => {
-            if (index === 0) return '0%';
-            if (index === colorArray.length - 1) return '100%';
-            return `${Math.round((index / (colorArray.length - 1)) * 100)}%`;
-        });
+        if (colorArray.length === 1) {
+            // For single color, create two stops at 0% and 100% with the same color
+            stopArray = ['0%', '100%'];
+        } else {
+            stopArray = colorArray.map((_, index) => {
+                if (index === 0) return '0%';
+                if (index === colorArray.length - 1) return '100%';
+                return `${Math.round((index / (colorArray.length - 1)) * 100)}%`;
+            });
+        }
     }
     
     // Convert CSS direction to SVG gradient coordinates
@@ -97,7 +102,11 @@ const gradientHandler = async (event, context) => {
     const coords = getGradientCoordinates(direction);
     
     // Generate SVG gradient stops with transparency support
-    const gradientStops = colorArray.map((color, index) => {
+    const gradientStops = stopArray.map((stopOffset, index) => {
+        // For single color gradients, use the same color for all stops
+        const colorIndex = colorArray.length === 1 ? 0 : index;
+        const color = colorArray[colorIndex];
+        
         // Parse color and alpha
         let hexColor = color;
         let opacity = 1;
@@ -114,7 +123,7 @@ const gradientHandler = async (event, context) => {
             opacity = parseInt(alphaHex, 16) / 255;
         }
         
-        return `<stop offset="${stopArray[index]}" style="stop-color:${hexColor};stop-opacity:${opacity}" />`;
+        return `<stop offset="${stopOffset}" style="stop-color:${hexColor};stop-opacity:${opacity}" />`;
     }).join('\n                ');
     
     const svgImage = `
