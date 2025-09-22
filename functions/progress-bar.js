@@ -13,6 +13,7 @@ const progressBarHandler = async (event, context) => {
     const gradientSpanParamRaw = (queryParams.gradientSpan || queryParams.gradientScope || 'bar');
     const gradientSpan = typeof gradientSpanParamRaw === 'string' ? gradientSpanParamRaw.toLowerCase() : 'bar';
     const aspectRatio = parseFloat(queryParams.aspectRatio) || 4; // Default 4:1 aspect ratio
+    const padding = parseInt(queryParams.padding) || 20; // Default padding
     
     // Parse colors - can be single color or comma-separated list
     let colors = [];
@@ -38,6 +39,14 @@ const progressBarHandler = async (event, context) => {
         return {
             statusCode: 400,
             body: JSON.stringify({ error: 'Invalid bg color format. Use hex color (e.g., #E5E7EB).' }),
+        };
+    }
+    
+    // Validate padding
+    if (padding < 0 || padding > 100) {
+        return {
+            statusCode: 400,
+            body: JSON.stringify({ error: 'Padding must be between 0 and 100 pixels' }),
         };
     }
     
@@ -99,7 +108,7 @@ const progressBarHandler = async (event, context) => {
     const borderRadius = barHeight / 2; // Fully rounded ends
     
     // Calculate progress width
-    const progressWidth = (value / 100) * (width - 40); // Leave 20px padding on each side
+    const progressWidth = (value / 100) * (width - (padding * 2)); // Leave padding on each side
     
     // Build gradient stops if multiple colors are provided
     const hasGradient = colors.length > 1;
@@ -111,8 +120,8 @@ const progressBarHandler = async (event, context) => {
         : '';
 
     // Determine gradient coordinates based on gradient span behavior
-    const gradientStartX = 20;
-    const gradientEndX = gradientSpan === 'bar' ? (width - 20) : (20 + progressWidth);
+    const gradientStartX = padding;
+    const gradientEndX = gradientSpan === 'bar' ? (width - padding) : (padding + progressWidth);
     const gradientY = barY;
 
     const svgImage = `
@@ -127,9 +136,9 @@ const progressBarHandler = async (event, context) => {
             ` : ''}
             <!-- Background bar (remaining track) -->
             <rect 
-                x="20" 
+                x="${padding}" 
                 y="${barY}" 
-                width="${width - 40}" 
+                width="${width - (padding * 2)}" 
                 height="${barHeight}" 
                 rx="${borderRadius}" 
                 ry="${borderRadius}" 
@@ -139,7 +148,7 @@ const progressBarHandler = async (event, context) => {
             
             <!-- Progress bar (colored) -->
             <rect 
-                x="20" 
+                x="${padding}" 
                 y="${barY}" 
                 width="${progressWidth}" 
                 height="${barHeight}" 

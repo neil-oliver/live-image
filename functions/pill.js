@@ -8,6 +8,8 @@ const pillHandler = async (event, context) => {
     const text = queryParams.text || 'Pill'; // Default text
     const color = queryParams.color || '#3B82F6'; // Default blue color
     const textColor = queryParams.textColor || '#FFFFFF'; // Default white text
+    const padding = parseInt(queryParams.padding) || 20; // Default horizontal padding
+    const verticalPadding = parseInt(queryParams.verticalPadding) || 12; // Default vertical padding
     
     // Validate color format (basic hex validation)
     const colorRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
@@ -18,10 +20,16 @@ const pillHandler = async (event, context) => {
         };
     }
     
+    // Validate padding
+    if (padding < 0 || padding > 200 || verticalPadding < 0 || verticalPadding > 100) {
+        return {
+            statusCode: 400,
+            body: JSON.stringify({ error: 'Padding must be between 0-200 (horizontal) and 0-100 (vertical) pixels' }),
+        };
+    }
+    
     // Calculate dimensions based on text length
     const fontSize = 16;
-    const padding = 20; // Horizontal padding
-    const verticalPadding = 12; // Vertical padding
     const textWidth = text.length * fontSize * 0.6; // Approximate text width
     const pillWidth = Math.max(100, textWidth + (padding * 2)); // Minimum 100px width
     const pillHeight = fontSize + (verticalPadding * 2);
