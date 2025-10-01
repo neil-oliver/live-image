@@ -194,6 +194,16 @@ export const endpoints: EndpointConfig[] = [
         description: 'Padding around the bar'
       },
       {
+        name: 'radius',
+        label: 'Corner Radius',
+        type: 'number',
+        default: '',
+        placeholder: 'Auto (fully rounded)',
+        min: 0,
+        max: 100,
+        description: 'Corner radius in pixels (empty = auto)'
+      },
+      {
         name: 'gradientSpan',
         label: 'Gradient Span',
         type: 'select',
@@ -332,6 +342,16 @@ export const endpoints: EndpointConfig[] = [
         min: 0,
         max: 100,
         description: 'Vertical padding'
+      },
+      {
+        name: 'radius',
+        label: 'Corner Radius',
+        type: 'number',
+        default: '',
+        placeholder: 'Auto (fully rounded)',
+        min: 0,
+        max: 100,
+        description: 'Corner radius in pixels (empty = auto)'
       },
       {
         name: 'icon',

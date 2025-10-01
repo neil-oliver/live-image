@@ -15,6 +15,7 @@ const pillHandler = async (event, context) => {
     
     const padding = parseInt(queryParams.padding) || 12;
     const verticalPadding = parseInt(queryParams.verticalPadding) || 6;
+    const radius = queryParams.radius ? parseInt(queryParams.radius) : null; // null = auto (pill-shaped)
     
     // Icon parameters
     const iconName = queryParams.icon || '';
@@ -79,7 +80,7 @@ const pillHandler = async (event, context) => {
     
     const pillWidth = Math.max(100, textWidth + (padding * 2) + iconWidth);
     const pillHeight = Math.max(fontSize, iconSize) + (verticalPadding * 2);
-    const borderRadius = pillHeight / 2;
+    const borderRadius = radius !== null ? radius : pillHeight / 2; // Use custom radius or auto (fully rounded)
     
     // SVG dimensions with margin
     const svgWidth = pillWidth + 40;

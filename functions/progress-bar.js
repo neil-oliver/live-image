@@ -14,6 +14,7 @@ const progressBarHandler = async (event, context) => {
     const gradientSpan = typeof gradientSpanParamRaw === 'string' ? gradientSpanParamRaw.toLowerCase() : 'bar';
     const aspectRatio = parseFloat(queryParams.aspectRatio) || 4; // Default 4:1 aspect ratio
     const padding = parseInt(queryParams.padding) || 20; // Default padding
+    const radius = queryParams.radius ? parseInt(queryParams.radius) : null; // null = auto (fully rounded)
     
     // Parse colors - can be single color or comma-separated list
     let colors = [];
@@ -105,7 +106,7 @@ const progressBarHandler = async (event, context) => {
     // Progress bar dimensions
     const barHeight = Math.round(height * 0.6); // 60% of container height
     const barY = (height - barHeight) / 2; // Center vertically
-    const borderRadius = barHeight / 2; // Fully rounded ends
+    const borderRadius = radius !== null ? radius : barHeight / 2; // Use custom radius or auto (fully rounded)
     
     // Calculate progress width
     const progressWidth = (value / 100) * (width - (padding * 2)); // Leave padding on each side
