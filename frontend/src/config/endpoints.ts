@@ -329,7 +329,7 @@ export const endpoints: EndpointConfig[] = [
         name: 'padding',
         label: 'Padding',
         type: 'number',
-        default: 12,
+        default: 8,
         min: 0,
         max: 200,
         description: 'Horizontal padding'

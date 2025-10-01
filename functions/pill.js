@@ -13,7 +13,7 @@ const pillHandler = async (event, context) => {
         ? normalizeColor(queryParams.backgroundColor)
         : lightenColor(textColor, 85); // Generate lighter shade (85% lighter)
     
-    const padding = parseInt(queryParams.padding) || 12;
+    const padding = parseInt(queryParams.padding) || 8;
     const verticalPadding = parseInt(queryParams.verticalPadding) || 6;
     const radius = queryParams.radius ? parseInt(queryParams.radius) : null; // null = auto (pill-shaped)
     
