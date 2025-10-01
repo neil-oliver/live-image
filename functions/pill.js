@@ -53,7 +53,7 @@ const pillHandler = async (event, context) => {
     
     // Calculate dimensions
     const fontSize = 16;
-    const textWidth = text.length * fontSize * 0.6;
+    const textWidth = text.length * fontSize * 0.5;
     
     // If icon is present, add space for it
     let iconSvg = null;
