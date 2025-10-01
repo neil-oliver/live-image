@@ -13,8 +13,8 @@ const pillHandler = async (event, context) => {
         ? normalizeColor(queryParams.backgroundColor)
         : lightenColor(textColor, 85); // Generate lighter shade (85% lighter)
     
-    const padding = parseInt(queryParams.padding) || 20;
-    const verticalPadding = parseInt(queryParams.verticalPadding) || 12;
+    const padding = parseInt(queryParams.padding) || 12;
+    const verticalPadding = parseInt(queryParams.verticalPadding) || 6;
     
     // Icon parameters
     const iconName = queryParams.icon || '';
