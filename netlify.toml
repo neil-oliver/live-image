@@ -1,5 +1,7 @@
 [build]
   functions = "functions"
+  publish = "frontend/dist"
+  command = "cd frontend && npm install && npm run build"
 
 [functions]
   node_bundler = "esbuild" # Use esbuild for bundling sharp

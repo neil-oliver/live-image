@@ -369,10 +369,36 @@ To run locally:
    - `http://localhost:8888/stars.svg`
     - `http://localhost:8888/blur.svg`
 
+## Web Interface
+
+A modern React web application is included to help you customize, preview, and download images from all endpoints.
+
+**Features:**
+- 🎨 **Visual Parameter Editor** - Adjust all endpoint parameters with intuitive controls
+- 👁️ **Live Preview** - See changes in real-time as you adjust parameters
+- 📋 **Copy URL** - One-click URL copying for easy integration
+- 💾 **Download** - Direct image download functionality
+- 🎯 **Example Presets** - Quick-start examples for each endpoint
+- 📱 **Responsive Design** - Works on desktop, tablet, and mobile
+- 🌙 **Dark Mode** - Automatic dark mode support
+- 🔧 **Scalable Architecture** - Add new endpoints by updating a single config file
+
+**Running the Frontend:**
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+The web interface is deployed alongside the API and provides a user-friendly way to explore and use all endpoints without writing code.
+
 ## Technical Details
 
-- **Framework:** Netlify Functions
-- **Language:** Node.js
+- **Backend Framework:** Netlify Functions
+- **Frontend Framework:** React 18 + TypeScript + Vite
+- **UI Library:** Tailwind CSS 4 + shadcn/ui
+- **State Management:** Zustand
+- **Language:** Node.js + TypeScript
 - **Output Format:** SVG (scalable vector graphics)
-- **Caching:** 5-minute cache for better performance
+- **Caching:** Long cache times for better performance
 - **Validation:** Color format validation for all endpoints
