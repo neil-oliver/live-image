@@ -121,7 +121,7 @@ const pillHandler = async (event, context) => {
             
             ${iconSvg ? `
             <!-- Icon -->
-            <svg x="${iconX}" y="${pillCenterY - iconSize / 2}" width="${iconSize}" height="${iconSize}" viewBox="0 0 24 24">
+            <svg x="${iconX}" y="${pillCenterY - iconSize / 2}" width="${iconSize}" height="${iconSize}" viewBox="0 0 24 24" fill="none" stroke="${textColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 ${iconSvg.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '')}
             </svg>
             ` : ''}
