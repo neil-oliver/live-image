@@ -121,9 +121,9 @@ const pillHandler = async (event, context) => {
             
             ${iconSvg ? `
             <!-- Icon -->
-            <g transform="translate(${iconX}, ${pillCenterY - iconSize / 2})">
+            <svg x="${iconX}" y="${pillCenterY - iconSize / 2}" width="${iconSize}" height="${iconSize}" viewBox="0 0 24 24">
                 ${iconSvg.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '')}
-            </g>
+            </svg>
             ` : ''}
             
             <!-- Text -->
