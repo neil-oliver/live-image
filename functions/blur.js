@@ -53,7 +53,8 @@ function toRgbString({ r, g, b }) {
   return `rgb(${r}, ${g}, ${b})`;
 }
 
-const { builder } = require('@netlify/functions');
+
+// Removed builder import - was causing Method Not Allowed errors
 
 const blurHandler = async (event) => {
   const q = event.queryStringParameters || {};
@@ -155,6 +156,6 @@ const blurHandler = async (event) => {
   };
 };
 
-exports.handler = builder(blurHandler);
+exports.handler = blurHandler;
 
 

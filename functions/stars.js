@@ -1,4 +1,5 @@
-const { builder } = require('@netlify/functions');
+
+// Removed builder import - was causing Method Not Allowed errors
 
 const starsHandler = async (event, context) => {
     // Parse query parameters
@@ -58,7 +59,7 @@ const starsHandler = async (event, context) => {
     }
 };
 
-exports.handler = builder(starsHandler);
+exports.handler = starsHandler;
 
 /**
  * Create a star rating SVG

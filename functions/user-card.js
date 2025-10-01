@@ -1,4 +1,5 @@
-const { builder } = require('@netlify/functions');
+
+// Removed builder import - was causing Method Not Allowed errors
 const fetch = require('node-fetch');
 
 const userCardHandler = async (event, context) => {
@@ -276,4 +277,4 @@ const userCardHandler = async (event, context) => {
     }
 };
 
-exports.handler = builder(userCardHandler); 
+exports.handler = userCardHandler; 
