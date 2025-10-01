@@ -1,4 +1,3 @@
-const { builder } = require('@netlify/functions');
 const fetch = require('node-fetch');
 const { normalizeColor, getProcessedSvg, toPascalCase } = require('./shared-utils');
 
@@ -456,6 +455,7 @@ const iconHandler = async (event, context) => {
     }
 };
 
-exports.handler = builder(iconHandler);
+// exports.handler = builder(iconHandler);
+exports.handler = iconHandler;
 
 
