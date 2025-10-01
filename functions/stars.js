@@ -104,7 +104,7 @@ function createStarsSVG(opts = {}) {
         
         if (i < Math.floor(value)) {
             // Fully filled star
-            starsHTML += `<path d="${starPath}" transform="translate(${x}, ${y})" fill="${color}" stroke="${color}" stroke-width="1"/>`;
+            starsHTML += `<path d="${starPath}" transform="translate(${x}, ${y})" fill="${color}" stroke="${color}" stroke-width="1" stroke-linejoin="round" stroke-linecap="round"/>`;
         } else if (i === Math.floor(value) && value % 1 > 0) {
             // Partially filled star
             const fillPercentage = value % 1;
@@ -116,12 +116,12 @@ function createStarsSVG(opts = {}) {
                         <rect x="${x - starSize/2}" y="${y - starSize/2}" width="${starSize * fillPercentage}" height="${starSize}"/>
                     </clipPath>
                 </defs>
-                <path d="${starPath}" transform="translate(${x}, ${y})" fill="${color}" stroke="${color}" stroke-width="1" clip-path="url(#${clipId})"/>
-                <path d="${starPath}" transform="translate(${x}, ${y})" fill="none" stroke="#D1D5DB" stroke-width="1"/>
+                <path d="${starPath}" transform="translate(${x}, ${y})" fill="${color}" stroke="${color}" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" clip-path="url(#${clipId})"/>
+                <path d="${starPath}" transform="translate(${x}, ${y})" fill="none" stroke="#D1D5DB" stroke-width="1" stroke-linejoin="round" stroke-linecap="round"/>
             `;
         } else {
             // Empty star (outline only)
-            starsHTML += `<path d="${starPath}" transform="translate(${x}, ${y})" fill="none" stroke="#D1D5DB" stroke-width="1"/>`;
+            starsHTML += `<path d="${starPath}" transform="translate(${x}, ${y})" fill="none" stroke="#D1D5DB" stroke-width="1" stroke-linejoin="round" stroke-linecap="round"/>`;
         }
     }
     
