@@ -17,8 +17,8 @@
   status = 200
 
 [[redirects]]
-  from = "/pill.svg"
-  to = "/.netlify/functions/pill"
+  from = "/badge.svg"
+  to = "/.netlify/functions/badge"
   status = 200
 
 [[redirects]]

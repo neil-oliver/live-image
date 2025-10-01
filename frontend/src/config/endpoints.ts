@@ -297,17 +297,17 @@ export const endpoints: EndpointConfig[] = [
     ]
   },
   {
-    id: 'pill',
-    name: 'Pill Badge',
+    id: 'badge',
+    name: 'Badge',
     description: 'Generate pill-shaped badges with text and icons',
-    path: '/pill.svg',
+    path: '/badge.svg',
     category: 'ui',
     parameters: [
       {
         name: 'text',
         label: 'Text',
         type: 'text',
-        default: 'Pill',
+        default: 'Badge',
         description: 'Badge text content'
       },
       {

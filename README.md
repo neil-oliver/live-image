@@ -62,14 +62,14 @@ Generates a circular progress chart with donut shape and centered percentage dis
 - Customizable size, stroke width, and padding
 - Properly displays full colored circle at 100%
 
-### Pill
+### Badge
 
 Generates a flat pill-shaped badge with customizable text, colors, and optional icons.
 
-**URL:** `/pill.svg`
+**URL:** `/badge.svg`
 
 **Parameters:**
-- `text` (string): Text to display inside the pill (default: "Pill")
+- `text` (string): Text to display inside the badge (default: "Badge")
 - `color` (hex color): Text color (default: #3B82F6)
   - The background color is automatically generated as a lighter shade of the text color
 - `backgroundColor` (hex color): Override the auto-generated background color
@@ -82,10 +82,10 @@ Generates a flat pill-shaped badge with customizable text, colors, and optional 
 
 **Example:**
 ```
-/pill.svg?text=Success&color=%2310B981
-/pill.svg?text=New&color=%23EF4444&icon=star
-/pill.svg?text=Premium&color=%23F59E0B&icon=crown&iconPosition=right
-/pill.svg?text=Alert&color=%23FF0000&backgroundColor=%23FFE5E5&icon=alert-circle
+/badge.svg?text=Success&color=%2310B981
+/badge.svg?text=New&color=%23EF4444&icon=star
+/badge.svg?text=Premium&color=%23F59E0B&icon=crown&iconPosition=right
+/badge.svg?text=Alert&color=%23FF0000&backgroundColor=%23FFE5E5&icon=alert-circle
 ```
 
 **Features:**
@@ -278,14 +278,14 @@ Generates a soft, pastel-style backdrop using overlapping radial gradients with 
   - `/progress-donut.svg?value=62&color=%2300C6FF,%23007CF0&bg=%23EEF2FF` - Gradient stroke with custom background
   - `/progress-donut.svg?value=62&color=%23FF0000,%2300FF00&gradientSpan=progress` - Compress gradient into the arc length only
 
-### Pill Examples
-- `/pill.svg?text=New&color=%23EF4444` - Red text with auto-generated light background
-- `/pill.svg?text=Success&color=%2310B981` - Green success pill
-- `/pill.svg?text=Warning&color=%23F59E0B` - Yellow warning pill
-- `/pill.svg?text=Premium&color=%23F59E0B&icon=crown` - Pill with crown icon on left
-- `/pill.svg?text=Featured&color=%233B82F6&icon=star&iconPosition=right` - Pill with star icon on right
-- `/pill.svg?text=Alert&color=%23DC2626&backgroundColor=%23FEE2E2&icon=alert-circle` - Custom background with alert icon
-- `/pill.svg?text=Beta&color=%238B5CF6&icon=flask-conical&iconSize=20` - Larger icon size
+### Badge Examples
+- `/badge.svg?text=New&color=%23EF4444` - Red text with auto-generated light background
+- `/badge.svg?text=Success&color=%2310B981` - Green success badge
+- `/badge.svg?text=Warning&color=%23F59E0B` - Yellow warning badge
+- `/badge.svg?text=Premium&color=%23F59E0B&icon=crown` - Badge with crown icon on left
+- `/badge.svg?text=Featured&color=%233B82F6&icon=star&iconPosition=right` - Badge with star icon on right
+- `/badge.svg?text=Alert&color=%23DC2626&backgroundColor=%23FEE2E2&icon=alert-circle` - Custom background with alert icon
+- `/badge.svg?text=Beta&color=%238B5CF6&icon=flask-conical&iconSize=20` - Larger icon size
 
 ### Datetime Examples
 - `/datetime.svg` - Current date and time with default styling
@@ -362,7 +362,7 @@ To run locally:
 3. Access endpoints at:
    - `http://localhost:8888/progress-bar.svg`
    - `http://localhost:8888/progress-donut.svg`
-   - `http://localhost:8888/pill.svg`
+   - `http://localhost:8888/badge.svg`
    - `http://localhost:8888/datetime.svg`
    - `http://localhost:8888/gradient.svg`
    - `http://localhost:8888/user-card.svg`

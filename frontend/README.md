@@ -4,7 +4,7 @@ A modern, responsive web application for generating and customizing dynamic SVG 
 
 ## 🎨 Features
 
-- **9 Endpoint Types**: Blur backgrounds, gradients, progress bars, donuts, pills, stars, datetime, icons, and user cards
+- **9 Endpoint Types**: Blur backgrounds, gradients, progress bars, donuts, badges, stars, datetime, icons, and user cards
 - **Dynamic Parameter Configuration**: All endpoints and their parameters are defined in a central config file
 - **Live Preview**: Real-time image preview as you adjust parameters
 - **Copy & Download**: Easily copy URLs or download generated images
