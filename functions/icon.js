@@ -1,64 +1,10 @@
 const { builder } = require('@netlify/functions');
 const fetch = require('node-fetch');
+const { normalizeColor, getProcessedSvg, toPascalCase } = require('./shared-utils');
 
-// Metadata and SVG cache for enhanced performance
+// Metadata cache for enhanced performance
 const metadataCache = new Map();
-const svgCache = new Map();
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
-
-// Helper function to normalize color values
-function normalizeColor(color) {
-    if (!color || color === 'currentColor') {
-        return color;
-    }
-    
-    // Check if it's a hex color without hash
-    const hexWithoutHash = /^[A-Fa-f0-9]{6}$|^[A-Fa-f0-9]{3}$/;
-    if (hexWithoutHash.test(color)) {
-        return '#' + color;
-    }
-    
-    // Return as-is for named colors, hex with hash, rgb(), hsl(), etc.
-    return color;
-}
-
-// Cache processed SVGs for better performance  
-async function getProcessedSvg(iconName, options = {}) {
-    const cacheKey = `svg-${iconName.toLowerCase()}-${JSON.stringify(options)}`;
-    const cached = svgCache.get(cacheKey);
-    
-    // Return cached SVG if still valid
-    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-        return cached.data;
-    }
-    
-    try {
-        const lucide = require('lucide');
-        const iconData = lucide[iconName];
-        
-        if (!iconData || !Array.isArray(iconData)) {
-            return null;
-        }
-        
-        // Process the icon data into SVG
-        const svgString = iconToSvg(iconData, options);
-        
-        // Cache the result
-        svgCache.set(cacheKey, {
-            data: svgString,
-            timestamp: Date.now()
-        });
-        
-        return svgString;
-    } catch (error) {
-        // Cache null result to avoid repeated failed requests
-        svgCache.set(cacheKey, {
-            data: null,
-            timestamp: Date.now()
-        });
-        return null;
-    }
-}
 
 // Fetch icon metadata from Lucide repository
 async function fetchIconMetadata(iconName) {
@@ -237,33 +183,6 @@ async function searchIconsWithMetadata(query, limit = 50) {
         .slice(0, limit);
 }
 
-// Optimized function to convert Lucide icon array to SVG string
-function iconToSvg(iconData, options = {}) {
-    const {
-        color = 'currentColor',
-        size = 24,
-        strokeWidth = 2,
-        fill = 'none',
-        strokeLinecap = 'round',
-        strokeLinejoin = 'round'
-    } = options;
-
-    // Convert icon data array to SVG elements (handles all element types)
-    const elements = iconData.map(([tag, attrs]) => {
-        // Handle all SVG elements (path, circle, line, rect, polygon, etc.)
-        if (typeof tag === 'string' && attrs && typeof attrs === 'object') {
-            const attrString = Object.entries(attrs)
-                .map(([key, value]) => `${key}="${value}"`)
-                .join(' ');
-            return `<${tag} ${attrString} />`;
-        }
-        return '';
-    }).join('\n    ');
-
-    return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="${fill}" stroke="${color}" stroke-width="${strokeWidth}" stroke-linecap="${strokeLinecap}" stroke-linejoin="${strokeLinejoin}" xmlns="http://www.w3.org/2000/svg">
-    ${elements}
-</svg>`;
-}
 
 const iconHandler = async (event, context) => {
     const query = event.queryStringParameters || {};
@@ -432,19 +351,6 @@ const iconHandler = async (event, context) => {
         };
     }
 
-    // Convert kebab-case to PascalCase for Lucide internal naming
-    const toPascalCase = (str) => {
-        return str
-            .split('-')
-            .map(word => {
-                // Handle single letters (like 'a' in 'a-arrow-down')
-                if (word.length === 1) {
-                    return word.toUpperCase();
-                }
-                return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-            })
-            .join('');
-    };
 
     // Normalize input name (accept spaces/underscores/camelCase -> kebab-case -> PascalCase)
     const kebabName = String(nameRaw)

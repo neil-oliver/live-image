@@ -64,26 +64,38 @@ Generates a circular progress chart with donut shape and centered percentage dis
 
 ### Pill
 
-Generates a pill-shaped element with customizable text and colors.
+Generates a flat pill-shaped badge with customizable text, colors, and optional icons.
 
 **URL:** `/pill.svg`
 
 **Parameters:**
 - `text` (string): Text to display inside the pill (default: "Pill")
-- `color` (hex color): Background color of the pill (default: #3B82F6)
-- `textColor` (hex color): Text color (default: #FFFFFF)
+- `color` (hex color): Text color (default: #3B82F6)
+  - The background color is automatically generated as a lighter shade of the text color
+- `backgroundColor` (hex color): Override the auto-generated background color
+- `icon` (string): Lucide icon name to display (optional)
+- `iconPosition` (string): Icon position - "left" or "right" (default: "left")
+- `iconSize` (number): Icon size in pixels (default: 16)
+- `iconSpacing` (number): Space between icon and text in pixels (default: 8)
+- `padding` (number): Horizontal padding in pixels (default: 20, range: 0-200)
+- `verticalPadding` (number): Vertical padding in pixels (default: 12, range: 0-100)
 
 **Example:**
 ```
-/pill.svg?text=Success&color=%2310B981&textColor=%23000000
+/pill.svg?text=Success&color=%2310B981
+/pill.svg?text=New&color=%23EF4444&icon=star
+/pill.svg?text=Premium&color=%23F59E0B&icon=crown&iconPosition=right
+/pill.svg?text=Alert&color=%23FF0000&backgroundColor=%23FFE5E5&icon=alert-circle
 ```
 
 **Features:**
-- Responsive width based on text length
-- Fully rounded ends
-- Gradient background effect
-- Centered text with professional typography
-- Subtle highlight for depth
+- Flat, modern design
+- Auto-generated background color (lighter shade of text color)
+- Optional Lucide icons with configurable position
+- Icons match text color automatically
+- Responsive width based on text length and icon
+- Fully rounded pill shape
+- Professional typography
 
 ### Datetime
 
@@ -267,9 +279,13 @@ Generates a soft, pastel-style backdrop using overlapping radial gradients with 
   - `/progress-donut.svg?value=62&color=%23FF0000,%2300FF00&gradientSpan=progress` - Compress gradient into the arc length only
 
 ### Pill Examples
-- `/pill.svg?text=New&color=%23EF4444` - Red pill with "New" text
-- `/pill.svg?text=Warning&color=%23F59E0B&textColor=%23000000` - Yellow warning pill with black text
-- `/pill.svg?text=Completed&color=%2310B981` - Green success pill
+- `/pill.svg?text=New&color=%23EF4444` - Red text with auto-generated light background
+- `/pill.svg?text=Success&color=%2310B981` - Green success pill
+- `/pill.svg?text=Warning&color=%23F59E0B` - Yellow warning pill
+- `/pill.svg?text=Premium&color=%23F59E0B&icon=crown` - Pill with crown icon on left
+- `/pill.svg?text=Featured&color=%233B82F6&icon=star&iconPosition=right` - Pill with star icon on right
+- `/pill.svg?text=Alert&color=%23DC2626&backgroundColor=%23FEE2E2&icon=alert-circle` - Custom background with alert icon
+- `/pill.svg?text=Beta&color=%238B5CF6&icon=flask-conical&iconSize=20` - Larger icon size
 
 ### Datetime Examples
 - `/datetime.svg` - Current date and time with default styling

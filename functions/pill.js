@@ -1,21 +1,33 @@
-// Removed builder import - was causing Method Not Allowed errors
+const { lightenColor, normalizeColor, getLucideIcon } = require('./shared-utils');
 
 const pillHandler = async (event, context) => {
     // Parse query parameters
     const queryParams = event.queryStringParameters || {};
     
-    // Extract parameters with defaults
-    const text = queryParams.text || 'Pill'; // Default text
-    const color = queryParams.color || '#3B82F6'; // Default blue color
-    const textColor = queryParams.textColor || '#FFFFFF'; // Default white text
-    const padding = parseInt(queryParams.padding) || 20; // Default horizontal padding
-    const verticalPadding = parseInt(queryParams.verticalPadding) || 12; // Default vertical padding
+    // Extract parameters with new behavior:
+    // - color = text color (breaking change from old version)
+    // - backgroundColor = background color (optional, auto-generated if not provided)
+    const text = queryParams.text || 'Pill';
+    const textColor = normalizeColor(queryParams.color || queryParams.textColor || '#3B82F6');
+    const backgroundColor = queryParams.backgroundColor 
+        ? normalizeColor(queryParams.backgroundColor)
+        : lightenColor(textColor, 85); // Generate lighter shade (85% lighter)
+    
+    const padding = parseInt(queryParams.padding) || 20;
+    const verticalPadding = parseInt(queryParams.verticalPadding) || 12;
+    
+    // Icon parameters
+    const iconName = queryParams.icon || '';
+    const iconPosition = (queryParams.iconPosition || 'left').toLowerCase();
+    const iconSize = parseInt(queryParams.iconSize) || 16;
+    const iconSpacing = parseInt(queryParams.iconSpacing) || 8;
     
     // Validate color format (basic hex validation)
     const colorRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
-    if (!colorRegex.test(color) || !colorRegex.test(textColor)) {
+    if (!colorRegex.test(textColor) || !colorRegex.test(backgroundColor)) {
         return {
             statusCode: 400,
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ error: 'Invalid color format. Use hex color (e.g., #3B82F6)' }),
         };
     }
@@ -24,59 +36,108 @@ const pillHandler = async (event, context) => {
     if (padding < 0 || padding > 200 || verticalPadding < 0 || verticalPadding > 100) {
         return {
             statusCode: 400,
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ error: 'Padding must be between 0-200 (horizontal) and 0-100 (vertical) pixels' }),
         };
     }
     
-    // Calculate dimensions based on text length
-    const fontSize = 16;
-    const textWidth = text.length * fontSize * 0.6; // Approximate text width
-    const pillWidth = Math.max(100, textWidth + (padding * 2)); // Minimum 100px width
-    const pillHeight = fontSize + (verticalPadding * 2);
-    const borderRadius = pillHeight / 2; // Fully rounded ends
+    // Validate icon position
+    if (iconPosition !== 'left' && iconPosition !== 'right') {
+        return {
+            statusCode: 400,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ error: 'iconPosition must be "left" or "right"' }),
+        };
+    }
     
-    // SVG dimensions with some margin
+    // Calculate dimensions
+    const fontSize = 16;
+    const textWidth = text.length * fontSize * 0.6;
+    
+    // If icon is present, add space for it
+    let iconSvg = null;
+    let iconWidth = 0;
+    
+    if (iconName) {
+        try {
+            iconSvg = await getLucideIcon(iconName, {
+                color: textColor,
+                size: iconSize,
+                strokeWidth: 2
+            });
+            
+            if (!iconSvg) {
+                return {
+                    statusCode: 404,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ error: `Icon not found: ${iconName}` }),
+                };
+            }
+            
+            iconWidth = iconSize + iconSpacing;
+        } catch (error) {
+            return {
+                statusCode: 500,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ error: 'Failed to load icon', details: error.message }),
+            };
+        }
+    }
+    
+    const pillWidth = Math.max(100, textWidth + (padding * 2) + iconWidth);
+    const pillHeight = Math.max(fontSize, iconSize) + (verticalPadding * 2);
+    const borderRadius = pillHeight / 2;
+    
+    // SVG dimensions with margin
     const svgWidth = pillWidth + 40;
     const svgHeight = pillHeight + 40;
     
+    // Calculate positions
+    const pillX = 20;
+    const pillY = 20;
+    const pillCenterY = pillY + pillHeight / 2;
+    
+    let textX, iconX;
+    
+    if (iconSvg) {
+        if (iconPosition === 'left') {
+            iconX = pillX + padding;
+            textX = iconX + iconSize + iconSpacing;
+        } else {
+            textX = pillX + padding;
+            iconX = textX + textWidth + iconSpacing;
+        }
+    } else {
+        textX = pillX + pillWidth / 2;
+    }
+    
+    // Build SVG
     const svgImage = `
         <svg width="${svgWidth}" height="${svgHeight}" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-                <linearGradient id="pillGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" style="stop-color:${color};stop-opacity:1" />
-                    <stop offset="100%" style="stop-color:${color};stop-opacity:0.8" />
-                </linearGradient>
-            </defs>
-            
-            <!-- Pill background -->
+            <!-- Flat pill background -->
             <rect 
-                x="20" 
-                y="20" 
+                x="${pillX}" 
+                y="${pillY}" 
                 width="${pillWidth}" 
                 height="${pillHeight}" 
                 rx="${borderRadius}" 
                 ry="${borderRadius}" 
-                fill="url(#pillGradient)" 
+                fill="${backgroundColor}" 
                 stroke="none"
             />
             
-            <!-- Subtle highlight at the top -->
-            <rect 
-                x="20" 
-                y="20" 
-                width="${pillWidth}" 
-                height="${Math.round(pillHeight * 0.3)}" 
-                rx="${borderRadius}" 
-                ry="${borderRadius}" 
-                fill="white" 
-                opacity="0.2"
-            />
+            ${iconSvg ? `
+            <!-- Icon -->
+            <g transform="translate(${iconX}, ${pillCenterY - iconSize / 2})">
+                ${iconSvg.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '')}
+            </g>
+            ` : ''}
             
             <!-- Text -->
             <text 
-                x="${20 + pillWidth / 2}" 
-                y="${20 + pillHeight / 2 + fontSize / 3}" 
-                text-anchor="middle" 
+                x="${textX}" 
+                y="${pillCenterY + fontSize / 3}" 
+                ${iconSvg ? '' : 'text-anchor="middle"'}
                 font-size="${fontSize}" 
                 font-family="Arial, sans-serif"
                 font-weight="500"
@@ -92,16 +153,18 @@ const pillHandler = async (event, context) => {
             statusCode: 200,
             headers: {
                 'Content-Type': 'image/svg+xml',
-                'Cache-Control': 'public, max-age=31536000', // 1 year since it's cached at edge
+                'Cache-Control': 'public, max-age=31536000',
+                'Access-Control-Allow-Origin': '*'
             },
-            body: svgImage,
+            body: svgImage.trim(),
         };
     } catch (error) {
         return {
             statusCode: 500,
-            body: JSON.stringify({ error: 'Failed to generate pill SVG' }),
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ error: 'Failed to generate pill SVG', details: error.message }),
         };
     }
 };
 
-exports.handler = pillHandler; 
+exports.handler = pillHandler;
