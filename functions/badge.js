@@ -7,7 +7,7 @@ const badgeHandler = async (event, context) => {
     // Extract parameters with new behavior:
     // - color = text color (breaking change from old version)
     // - backgroundColor = background color (optional, auto-generated if not provided)
-    const text = queryParams.text || 'Badge';
+    const text = queryParams.text || '';
     const textColor = normalizeColor(queryParams.color || queryParams.textColor || '#3B82F6');
     const backgroundColor = queryParams.backgroundColor 
         ? normalizeColor(queryParams.backgroundColor)
@@ -53,7 +53,7 @@ const badgeHandler = async (event, context) => {
     
     // Calculate dimensions
     const fontSize = 16;
-    const textWidth = text.length * fontSize * 0.5;
+    const textWidth = text ? text.length * fontSize * 0.5 : 0;
     
     // If icon is present, add space for it
     let iconSvg = null;
@@ -69,7 +69,7 @@ const badgeHandler = async (event, context) => {
             
             // If icon is found, add spacing for it
             if (iconSvg) {
-                iconWidth = iconSize + iconSpacing;
+                iconWidth = iconSize + (text ? iconSpacing : 0);
             }
             // If icon is not found, just ignore it (iconWidth stays 0)
         } catch (error) {
@@ -78,7 +78,7 @@ const badgeHandler = async (event, context) => {
         }
     }
     
-    const badgeWidth = Math.max(100, textWidth + (padding * 2) + iconWidth);
+    const badgeWidth = Math.max(text || iconSvg ? 0 : 100, textWidth + (padding * 2) + iconWidth);
     const badgeHeight = Math.max(fontSize, iconSize) + (verticalPadding * 2);
     const borderRadius = radius !== null ? radius : badgeHeight / 2; // Use custom radius or auto (fully rounded)
     
@@ -93,7 +93,8 @@ const badgeHandler = async (event, context) => {
     
     let textX, iconX;
     
-    if (iconSvg) {
+    if (iconSvg && text) {
+        // Both icon and text
         if (iconPosition === 'left') {
             iconX = badgeX + padding;
             textX = iconX + iconSize + iconSpacing;
@@ -101,7 +102,11 @@ const badgeHandler = async (event, context) => {
             textX = badgeX + padding;
             iconX = textX + textWidth + iconSpacing;
         }
+    } else if (iconSvg) {
+        // Icon only (no text)
+        iconX = badgeX + badgeWidth / 2 - iconSize / 2;
     } else {
+        // Text only (no icon)
         textX = badgeX + badgeWidth / 2;
     }
     
@@ -127,11 +132,12 @@ const badgeHandler = async (event, context) => {
             </svg>
             ` : ''}
             
+            ${text ? `
             <!-- Text -->
             <text 
                 x="${textX}" 
                 y="${badgeCenterY + fontSize / 3}" 
-                ${iconSvg ? '' : 'text-anchor="middle"'}
+                ${iconSvg && text ? '' : 'text-anchor="middle"'}
                 font-size="${fontSize}" 
                 font-family="Arial, sans-serif"
                 font-weight="500"
@@ -139,6 +145,7 @@ const badgeHandler = async (event, context) => {
             >
                 ${text}
             </text>
+            ` : ''}
         </svg>
     `;
 

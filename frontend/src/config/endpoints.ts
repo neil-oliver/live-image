@@ -307,8 +307,9 @@ export const endpoints: EndpointConfig[] = [
         name: 'text',
         label: 'Text',
         type: 'text',
-        default: 'Badge',
-        description: 'Badge text content'
+        default: '',
+        placeholder: 'Badge text (optional)',
+        description: 'Badge text content (leave empty for icon-only badge)'
       },
       {
         name: 'color',
@@ -385,7 +386,7 @@ export const endpoints: EndpointConfig[] = [
     examples: [
       { name: 'Success', text: 'Success', color: '#10B981', icon: 'check' },
       { name: 'Featured', text: 'Featured', color: '#F59E0B', icon: 'star', iconPosition: 'left' },
-      { name: 'Premium', text: 'Premium', color: '#8B5CF6', icon: 'crown' }
+      { name: 'Icon Only', text: '', color: '#8B5CF6', icon: 'crown' }
     ]
   },
   {
