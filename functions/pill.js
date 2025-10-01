@@ -66,21 +66,14 @@ const pillHandler = async (event, context) => {
                 strokeWidth: 2
             });
             
-            if (!iconSvg) {
-                return {
-                    statusCode: 404,
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ error: `Icon not found: ${iconName}` }),
-                };
+            // If icon is found, add spacing for it
+            if (iconSvg) {
+                iconWidth = iconSize + iconSpacing;
             }
-            
-            iconWidth = iconSize + iconSpacing;
+            // If icon is not found, just ignore it (iconWidth stays 0)
         } catch (error) {
-            return {
-                statusCode: 500,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ error: 'Failed to load icon', details: error.message }),
-            };
+            // If icon fails to load, just ignore it and continue without icon
+            iconSvg = null;
         }
     }
     
