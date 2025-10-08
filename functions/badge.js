@@ -82,13 +82,13 @@ const badgeHandler = async (event, context) => {
     const badgeHeight = Math.max(fontSize, iconSize) + (verticalPadding * 2);
     const borderRadius = radius !== null ? radius : badgeHeight / 2; // Use custom radius or auto (fully rounded)
     
-    // SVG dimensions with margin
-    const svgWidth = badgeWidth + 40;
-    const svgHeight = badgeHeight + 40;
+    // SVG dimensions (no extra margin)
+    const svgWidth = badgeWidth;
+    const svgHeight = badgeHeight;
     
     // Calculate positions
-    const badgeX = 20;
-    const badgeY = 20;
+    const badgeX = 0;
+    const badgeY = 0;
     const badgeCenterY = badgeY + badgeHeight / 2;
     
     let textX, iconX;
