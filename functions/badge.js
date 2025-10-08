@@ -1,8 +1,8 @@
 const { lightenColor, normalizeColor, getLucideIcon } = require('./shared-utils');
-const { createCanvas } = require('canvas');
+const pixelWidth = require('string-pixel-width');
 
 /**
- * Accurately measure text width using Canvas API
+ * Accurately measure text width using string-pixel-width library
  * @param {string} text - The text to measure
  * @param {number} fontSize - Font size in pixels
  * @param {string} fontFamily - Font family (e.g., 'Arial, sans-serif')
@@ -12,12 +12,22 @@ const { createCanvas } = require('canvas');
 function getTextWidth(text, fontSize, fontFamily = 'Arial, sans-serif', fontWeight = '500') {
     if (!text) return 0;
     
-    const canvas = createCanvas(0, 0);
-    const ctx = canvas.getContext('2d');
-    ctx.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
+    // string-pixel-width supports common fonts
+    // Font mapping: 'Arial, sans-serif' -> 'arial'
+    const fontMap = {
+        'Arial, sans-serif': 'arial',
+        'Arial': 'arial',
+        'Helvetica': 'arial', // Similar to Arial
+        'sans-serif': 'arial'
+    };
     
-    const metrics = ctx.measureText(text);
-    return metrics.width;
+    const mappedFont = fontMap[fontFamily] || fontMap['Arial, sans-serif'];
+    
+    return pixelWidth(text, { 
+        font: mappedFont,
+        size: fontSize,
+        bold: fontWeight === 'bold' || fontWeight === '700' || fontWeight === '600'
+    });
 }
 
 const badgeHandler = async (event, context) => {
