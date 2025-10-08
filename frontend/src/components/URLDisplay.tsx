@@ -7,10 +7,9 @@ import { copyToClipboard } from '@/lib/utils';
 
 interface URLDisplayProps {
   url: string;
-  endpointId: string;
 }
 
-export function URLDisplay({ url, endpointId }: URLDisplayProps) {
+export function URLDisplay({ url }: URLDisplayProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {

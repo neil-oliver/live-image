@@ -120,7 +120,7 @@ export function EndpointEditor({ endpoint }: EndpointEditorProps) {
         {/* Preview & URL */}
         <div className="space-y-6">
           <ImagePreview imageUrl={imageUrl} endpointName={endpoint.name} />
-          <URLDisplay url={imageUrl} endpointId={endpoint.id} />
+          <URLDisplay url={imageUrl} />
         </div>
       </div>
     </div>
