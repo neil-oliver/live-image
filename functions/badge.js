@@ -186,7 +186,7 @@ const badgeHandler = async (event, context) => {
             statusCode: 200,
             headers: {
                 'Content-Type': 'image/svg+xml',
-                'Cache-Control': 'public, max-age=31536000',
+                'Cache-Control': 'public, max-age=2592000', // 1 month
                 'Access-Control-Allow-Origin': '*'
             },
             body: svgImage.trim(),

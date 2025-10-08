@@ -272,7 +272,7 @@ const iconHandler = async (event, context) => {
                     headers: {
                         'Content-Type': 'application/json',
                         'Access-Control-Allow-Origin': '*',
-                        'Cache-Control': 'public, max-age=31536000' // 1 year since it's cached at edge
+                        'Cache-Control': 'public, max-age=2592000' // 1 month since it's cached at edge
                     },
                     body: JSON.stringify({ 
                         query: q, 
@@ -302,7 +302,7 @@ const iconHandler = async (event, context) => {
                     statusCode: 200,
                     headers: {
                         'Content-Type': 'image/svg+xml',
-                        'Cache-Control': 'public, max-age=31536000', // 1 year since it's cached at edge,
+                        'Cache-Control': 'public, max-age=2592000', // 1 month since it's cached at edge,
                         'Access-Control-Allow-Origin': '*',
                         'X-Icon-Name': bestMatch.name,
                         'X-Match-Score': bestMatch.score.toString(),
@@ -325,7 +325,7 @@ const iconHandler = async (event, context) => {
                 statusCode: 200,
                 headers: {
                     'Content-Type': 'image/svg+xml',
-                    'Cache-Control': 'public, max-age=31536000', // 1 year since it's cached at edge,
+                    'Cache-Control': 'public, max-age=2592000', // 1 month since it's cached at edge,
                     'Access-Control-Allow-Origin': '*',
                     'X-Icon-Name': bestMatch.name,
                     'X-Match-Score': bestMatch.score.toString(),
@@ -422,7 +422,7 @@ const iconHandler = async (event, context) => {
                 statusCode: 200,
                 headers: {
                     'Content-Type': 'image/svg+xml',
-                    'Cache-Control': 'public, max-age=31536000', // 1 year since it's cached at edge,
+                    'Cache-Control': 'public, max-age=2592000', // 1 month since it's cached at edge,
                     'Access-Control-Allow-Origin': '*'
                 },
                 body: innerSvg
@@ -442,7 +442,7 @@ const iconHandler = async (event, context) => {
             statusCode: 200,
             headers: {
                 'Content-Type': 'image/svg+xml',
-                'Cache-Control': 'public, max-age=31536000', // 1 year since it's cached at edge,
+                'Cache-Control': 'public, max-age=2592000', // 1 month since it's cached at edge,
                 'Access-Control-Allow-Origin': '*'
             },
             body: wrapped

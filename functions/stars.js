@@ -45,7 +45,7 @@ const starsHandler = async (event, context) => {
             statusCode: 200,
             headers: {
                 'Content-Type': 'image/svg+xml',
-                'Cache-Control': 'public, max-age=31536000', // 1 year since it's cached at edge
+                'Cache-Control': 'public, max-age=2592000', // 1 month since it's cached at edge
                 'Access-Control-Allow-Origin': '*'
             },
             body: svg
