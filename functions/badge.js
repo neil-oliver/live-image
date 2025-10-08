@@ -1,4 +1,24 @@
 const { lightenColor, normalizeColor, getLucideIcon } = require('./shared-utils');
+const { createCanvas } = require('canvas');
+
+/**
+ * Accurately measure text width using Canvas API
+ * @param {string} text - The text to measure
+ * @param {number} fontSize - Font size in pixels
+ * @param {string} fontFamily - Font family (e.g., 'Arial, sans-serif')
+ * @param {string} fontWeight - Font weight (e.g., '500', 'bold')
+ * @returns {number} The width of the text in pixels
+ */
+function getTextWidth(text, fontSize, fontFamily = 'Arial, sans-serif', fontWeight = '500') {
+    if (!text) return 0;
+    
+    const canvas = createCanvas(0, 0);
+    const ctx = canvas.getContext('2d');
+    ctx.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
+    
+    const metrics = ctx.measureText(text);
+    return metrics.width;
+}
 
 const badgeHandler = async (event, context) => {
     // Parse query parameters
@@ -53,7 +73,9 @@ const badgeHandler = async (event, context) => {
     
     // Calculate dimensions
     const fontSize = 16;
-    const textWidth = text ? text.length * fontSize * 0.5 : 0;
+    const fontFamily = 'Arial, sans-serif';
+    const fontWeight = '500';
+    const textWidth = getTextWidth(text, fontSize, fontFamily, fontWeight);
     
     // If icon is present, add space for it
     let iconSvg = null;
