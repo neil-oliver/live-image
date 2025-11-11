@@ -204,6 +204,24 @@ export const endpoints: EndpointConfig[] = [
         description: 'Corner radius in pixels (empty = auto)'
       },
       {
+        name: 'segments',
+        label: 'Segments',
+        type: 'number',
+        default: 1,
+        min: 1,
+        max: 50,
+        description: 'Number of segments to split bar into'
+      },
+      {
+        name: 'gap',
+        label: 'Gap Size',
+        type: 'number',
+        default: 4,
+        min: 0,
+        max: 20,
+        description: 'Gap between segments in pixels'
+      },
+      {
         name: 'gradientSpan',
         label: 'Gradient Span',
         type: 'select',
@@ -218,7 +236,8 @@ export const endpoints: EndpointConfig[] = [
     examples: [
       { name: '75% Complete', value: 75, color: '#10B981' },
       { name: 'Gradient', value: 60, color: '#3B82F6,#8B5CF6,#EC4899' },
-      { name: 'Warning', value: 30, color: '#F59E0B', bg: '#FEF3C7' }
+      { name: 'Warning', value: 30, color: '#F59E0B', bg: '#FEF3C7' },
+      { name: 'Segmented', value: 70, color: '#3B82F6,#8B5CF6,#EC4899', segments: 10, gap: 6 }
     ]
   },
   {

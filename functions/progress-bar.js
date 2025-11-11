@@ -6,7 +6,7 @@ const progressBarHandler = async (event, context) => {
     const queryParams = event.queryStringParameters || {};
     
     // Extract parameters with defaults
-    const value = Math.max(0, Math.min(100, parseFloat(queryParams.value) || 50)); // 0-100, default 50
+    const value = Math.max(0, Math.min(100, queryParams.value !== undefined ? parseFloat(queryParams.value) : 50)); // 0-100, default 50
     const colorParam = queryParams.color || '#3B82F6'; // Default blue color
     const backgroundColorParam = queryParams.bg || queryParams.bgColor || '#E5E7EB'; // Remaining track color
     // Gradient span behavior: 'bar' (default) or 'progress'
@@ -15,6 +15,8 @@ const progressBarHandler = async (event, context) => {
     const aspectRatio = parseFloat(queryParams.aspectRatio) || 4; // Default 4:1 aspect ratio
     const padding = parseInt(queryParams.padding) || 20; // Default padding
     const radius = queryParams.radius ? parseInt(queryParams.radius) : null; // null = auto (fully rounded)
+    const segments = Math.max(1, Math.min(50, parseInt(queryParams.segments) || 1)); // Number of segments
+    const gap = Math.max(0, Math.min(20, parseInt(queryParams.gap) || 4)); // Gap between segments
     
     // Parse colors - can be single color or comma-separated list
     let colors = [];
@@ -125,6 +127,154 @@ const progressBarHandler = async (event, context) => {
     const gradientEndX = gradientSpan === 'bar' ? (width - padding) : (padding + progressWidth);
     const gradientY = barY;
 
+    // Render segments
+    let segmentElements = '';
+    
+    if (segments > 1) {
+        // Calculate segment dimensions
+        const totalBarWidth = width - (padding * 2);
+        const totalGapSpace = (segments - 1) * gap;
+        const segmentWidth = (totalBarWidth - totalGapSpace) / segments;
+        
+        // Calculate how many full segments to show and the partial segment progress
+        const progressPerSegment = 100 / segments;
+        const fullSegments = Math.floor(value / progressPerSegment);
+        const partialSegmentProgress = (value % progressPerSegment) / progressPerSegment;
+        
+        // Render each segment
+        for (let i = 0; i < segments; i++) {
+            const segmentX = padding + (i * (segmentWidth + gap));
+            
+            // Determine if this segment should be filled
+            let segmentFillWidth = 0;
+            if (i < fullSegments) {
+                // Full segment
+                segmentFillWidth = segmentWidth;
+            } else if (i === fullSegments && partialSegmentProgress > 0) {
+                // Partial segment
+                segmentFillWidth = segmentWidth * partialSegmentProgress;
+            }
+            
+            if (segmentFillWidth > 0) {
+                // Calculate color for this segment based on its position
+                const segmentPositionPercent = segments === 1 ? 0 : (i / (segments - 1)) * 100;
+                const segmentColor = getColorFromGradient(colors, segmentPositionPercent);
+                
+                // Determine border radius for this segment
+                // For segmented bars, each segment has independent rounded corners
+                let segmentRadius = 0;
+                
+                if (radius !== null) {
+                    // Custom radius specified
+                    segmentRadius = Math.min(radius, barHeight / 2, segmentWidth / 2);
+                } else {
+                    // Auto radius (fully rounded for each segment)
+                    segmentRadius = Math.min(barHeight / 2, segmentWidth / 2);
+                }
+                
+                // Determine if this is a full or partial segment fill
+                const isFullSegment = segmentFillWidth >= segmentWidth * 0.99; // Allow small floating point errors
+                const rightRadius = isFullSegment ? segmentRadius : 0; // Only round right corners if fully filled
+                
+                // Ensure radii don't exceed available space
+                const actualLeftRadius = Math.min(segmentRadius, segmentFillWidth / 2, barHeight / 2);
+                const actualRightRadius = Math.min(rightRadius, segmentFillWidth / 2, barHeight / 2);
+                
+                // Generate rect with border radius (simpler than path for most cases)
+                if (actualLeftRadius === actualRightRadius) {
+                    // Uniform radius - use simple rect
+                    segmentElements += `
+                        <rect 
+                            x="${segmentX}" 
+                            y="${barY}" 
+                            width="${segmentFillWidth}" 
+                            height="${barHeight}" 
+                            rx="${actualLeftRadius}" 
+                            ry="${actualLeftRadius}" 
+                            fill="${segmentColor}" 
+                            stroke="none"
+                        />
+                    `;
+                } else {
+                    // Different radii on left/right - use path for more control
+                    const pathD = `
+                        M ${segmentX + actualLeftRadius},${barY}
+                        L ${segmentX + segmentFillWidth - actualRightRadius},${barY}
+                        ${actualRightRadius > 0 ? `Q ${segmentX + segmentFillWidth},${barY} ${segmentX + segmentFillWidth},${barY + actualRightRadius}` : ''}
+                        L ${segmentX + segmentFillWidth},${barY + barHeight - actualRightRadius}
+                        ${actualRightRadius > 0 ? `Q ${segmentX + segmentFillWidth},${barY + barHeight} ${segmentX + segmentFillWidth - actualRightRadius},${barY + barHeight}` : ''}
+                        L ${segmentX + actualLeftRadius},${barY + barHeight}
+                        ${actualLeftRadius > 0 ? `Q ${segmentX},${barY + barHeight} ${segmentX},${barY + barHeight - actualLeftRadius}` : ''}
+                        L ${segmentX},${barY + actualLeftRadius}
+                        ${actualLeftRadius > 0 ? `Q ${segmentX},${barY} ${segmentX + actualLeftRadius},${barY}` : ''}
+                        Z
+                    `;
+                    
+                    segmentElements += `
+                        <path d="${pathD.replace(/\s+/g, ' ').trim()}" fill="${segmentColor}" stroke="none" />
+                    `;
+                }
+            }
+        }
+        
+        // Render background segments
+        let backgroundSegments = '';
+        for (let i = 0; i < segments; i++) {
+            const segmentX = padding + (i * (segmentWidth + gap));
+            
+            // Calculate border radius for background segments (same logic as filled segments)
+            let segmentRadius = 0;
+            
+            if (radius !== null) {
+                // Custom radius specified
+                segmentRadius = Math.min(radius, barHeight / 2, segmentWidth / 2);
+            } else {
+                // Auto radius (fully rounded for each segment)
+                segmentRadius = Math.min(barHeight / 2, segmentWidth / 2);
+            }
+            
+            backgroundSegments += `
+                <rect 
+                    x="${segmentX}" 
+                    y="${barY}" 
+                    width="${segmentWidth}" 
+                    height="${barHeight}" 
+                    rx="${segmentRadius}" 
+                    ry="${segmentRadius}" 
+                    fill="${backgroundColorParam}" 
+                    stroke="none"
+                />
+            `;
+        }
+        
+        const svgImage = `
+            <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+                <!-- Background segments -->
+                ${backgroundSegments}
+                
+                <!-- Filled segments -->
+                ${segmentElements}
+            </svg>
+        `;
+        
+        try {
+            return {
+                statusCode: 200,
+                headers: {
+                    'Content-Type': 'image/svg+xml',
+                    'Cache-Control': 'public, max-age=2592000', // 1 month since it's cached at edge
+                },
+                body: svgImage,
+            };
+        } catch (error) {
+            return {
+                statusCode: 500,
+                body: JSON.stringify({ error: 'Failed to generate progress bar SVG' }),
+            };
+        }
+    }
+
+    // Original single-bar rendering (when segments === 1)
     const svgImage = `
         <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
             ${hasGradient ? `
