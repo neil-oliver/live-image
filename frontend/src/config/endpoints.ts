@@ -579,12 +579,43 @@ export const endpoints: EndpointConfig[] = [
         min: 0,
         max: 200,
         description: 'Padding around icon'
+      },
+      {
+        name: 'backgroundColor',
+        label: 'Background Color',
+        type: 'color',
+        default: '',
+        placeholder: 'None (transparent)',
+        description: 'Background color (auto-generates lighter shade)'
+      },
+      {
+        name: 'bgShape',
+        label: 'Background Shape',
+        type: 'select',
+        default: 'circle',
+        options: [
+          { value: 'circle', label: 'Circle' },
+          { value: 'square', label: 'Square' }
+        ],
+        description: 'Shape of the background'
+      },
+      {
+        name: 'bgRadius',
+        label: 'Corner Radius',
+        type: 'number',
+        default: '',
+        placeholder: 'Auto (0 for square)',
+        min: 0,
+        max: 100,
+        description: 'Corner radius for square backgrounds'
       }
     ],
     examples: [
       { name: 'Heart Icon', iconName: 'heart', color: '#EF4444', size: 48 },
       { name: 'Star Icon', iconName: 'star', color: '#FFD700', strokeWidth: 3 },
-      { name: 'Check Icon', iconName: 'check', color: '#10B981', size: 32 }
+      { name: 'Check Icon', iconName: 'check', color: '#10B981', size: 32 },
+      { name: 'Circle Background', iconName: 'bell', color: '#3B82F6', backgroundColor: '#3B82F6', bgShape: 'circle', size: 48 },
+      { name: 'Rounded Square', iconName: 'settings', color: '#8B5CF6', backgroundColor: '#8B5CF6', bgShape: 'square', bgRadius: 12, size: 48 }
     ]
   },
   {

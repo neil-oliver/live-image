@@ -1,5 +1,5 @@
 const fetch = require('node-fetch');
-const { normalizeColor, getProcessedSvg, toPascalCase } = require('./shared-utils');
+const { normalizeColor, getProcessedSvg, toPascalCase, lightenColor } = require('./shared-utils');
 
 // Metadata cache for enhanced performance
 const metadataCache = new Map();
@@ -193,6 +193,30 @@ const iconHandler = async (event, context) => {
     const size = Math.max(8, Math.min(1024, parseInt(query.size) || 24));
     const strokeWidth = Math.max(0.25, Math.min(8, parseFloat(query.strokeWidth) || 2));
     const padding = Math.max(0, Math.min(200, parseInt(query.padding) || 10));
+    
+    // Background parameters
+    const backgroundColorRaw = query.backgroundColor || query.bgColor || query.bg || '';
+    const bgShape = (query.bgShape || query.shape || 'circle').toLowerCase();
+    const bgRadiusRaw = query.bgRadius || query.radius || '';
+    
+    // Process background color - generate lighter shade like badges do
+    let backgroundColor = null;
+    let bgLightColor = null;
+    if (backgroundColorRaw) {
+        backgroundColor = normalizeColor(backgroundColorRaw);
+        bgLightColor = lightenColor(backgroundColor, 85); // 85% lighter like badges
+    }
+    
+    // Calculate background radius
+    // For circle: always use half the total size (fully round)
+    // For square: use provided radius or 0
+    const totalBgSize = size + padding * 2;
+    let bgRadius;
+    if (bgShape === 'circle') {
+        bgRadius = totalBgSize / 2;
+    } else {
+        bgRadius = bgRadiusRaw !== '' ? Math.max(0, Math.min(totalBgSize / 2, parseInt(bgRadiusRaw) || 0)) : 0;
+    }
 
     // Enhanced search with metadata support
     if (searchQueryRaw) {
@@ -296,8 +320,8 @@ const iconHandler = async (event, context) => {
                 };
             }
 
-            // If no padding requested, return icon as-is
-            if (!padding) {
+            // If no padding and no background, return icon as-is
+            if (!padding && !backgroundColor) {
                 return {
                     statusCode: 200,
                     headers: {
@@ -316,8 +340,20 @@ const iconHandler = async (event, context) => {
             // Wrap icon in an outer canvas with configurable padding [[memory:3907943]]
             const injected = innerSvg.replace('<svg', `<svg x="${padding}" y="${padding}"`);
             const totalSize = size + padding * 2;
+            
+            // Generate background element if backgroundColor is provided
+            let bgElement = '';
+            if (backgroundColor) {
+                if (bgShape === 'circle') {
+                    bgElement = `<circle cx="${totalSize / 2}" cy="${totalSize / 2}" r="${totalSize / 2}" fill="${bgLightColor}" />`;
+                } else {
+                    bgElement = `<rect x="0" y="0" width="${totalSize}" height="${totalSize}" rx="${bgRadius}" ry="${bgRadius}" fill="${bgLightColor}" />`;
+                }
+            }
+            
             const wrapped = `
 <svg width="${totalSize}" height="${totalSize}" xmlns="http://www.w3.org/2000/svg">
+  ${bgElement}
   ${injected}
 </svg>`;
 
@@ -416,8 +452,8 @@ const iconHandler = async (event, context) => {
 
         // innerSvg is already processed with custom options
 
-        // If no padding requested, return icon as-is
-        if (!padding) {
+        // If no padding and no background, return icon as-is
+        if (!padding && !backgroundColor) {
             return {
                 statusCode: 200,
                 headers: {
@@ -433,8 +469,20 @@ const iconHandler = async (event, context) => {
         // Offset nested <svg> by adding x/y attributes.
         const injected = innerSvg.replace('<svg', `<svg x="${padding}" y="${padding}"`);
         const totalSize = size + padding * 2;
+        
+        // Generate background element if backgroundColor is provided
+        let bgElement = '';
+        if (backgroundColor) {
+            if (bgShape === 'circle') {
+                bgElement = `<circle cx="${totalSize / 2}" cy="${totalSize / 2}" r="${totalSize / 2}" fill="${bgLightColor}" />`;
+            } else {
+                bgElement = `<rect x="0" y="0" width="${totalSize}" height="${totalSize}" rx="${bgRadius}" ry="${bgRadius}" fill="${bgLightColor}" />`;
+            }
+        }
+        
         const wrapped = `
 <svg width="${totalSize}" height="${totalSize}" xmlns="http://www.w3.org/2000/svg">
+  ${bgElement}
   ${injected}
 </svg>`;
 
