@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Progress Bar Tests - Smart Border Radius</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f9fafb;
+        }
+        h1 {
+            color: #111827;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #6b7280;
+            margin-bottom: 40px;
+        }
+        .test-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .test-section h2 {
+            margin-top: 0;
+            color: #374151;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .test-item {
+            margin-bottom: 25px;
+        }
+        .test-label {
+            font-weight: 500;
+            color: #4b5563;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .test-description {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-bottom: 10px;
+        }
+        img {
+            display: block;
+            width: 100%;
+            max-width: 600px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+        }
+        code {
+            background: #f3f4f6;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #1f2937;
+        }
+    </style>
+</head>
+<body>
+    <h1>Progress Bar Tests - Smart Border Radius</h1>
+    <p class="subtitle">Testing the new intelligent rounding logic that prevents the "disconnected pill" appearance at low progress values</p>
+
+    <div class="test-section">
+        <h2>Single Bar - Various Progress Values</h2>
+        
+        <div class="test-item">
+            <div class="test-label">1% Progress</div>
+            <div class="test-description">Very low progress - should have rounded left edge, square right edge ✅</div>
+            <img src="/.netlify/functions/progress-bar?value=1&color=%233B82F6&bg=%23E5E7EB" alt="1% Progress">
+        </div>
+
+        <div class="test-item">
+            <div class="test-label">5% Progress</div>
+            <div class="test-description">Low progress - should have rounded left edge, square right edge ✅</div>
+            <img src="/.netlify/functions/progress-bar?value=5&color=%233B82F6&bg=%23E5E7EB" alt="5% Progress">
+        </div>
+
+        <div class="test-item">
+            <div class="test-label">15% Progress</div>
+            <div class="test-description">Should have rounded left edge, square right edge ✅</div>
+            <img src="/.netlify/functions/progress-bar?value=15&color=%2310B981&bg=%23E5E7EB" alt="15% Progress">
+        </div>
+
+        <div class="test-item">
+            <div class="test-label">25% Progress</div>
+            <div class="test-description">Quarter complete - rounded left, square right ✅</div>
+            <img src="/.netlify/functions/progress-bar?value=25&color=%233B82F6&bg=%23E5E7EB" alt="25% Progress">
+        </div>
+
+        <div class="test-item">
+            <div class="test-label">50% Progress</div>
+            <div class="test-description">Half complete - rounded left, square right ✅</div>
+            <img src="/.netlify/functions/progress-bar?value=50&color=%238B5CF6&bg=%23E5E7EB" alt="50% Progress">
+        </div>
+
+        <div class="test-item">
+            <div class="test-label">75% Progress</div>
+            <div class="test-description">Three quarters - rounded left, square right ✅</div>
+            <img src="/.netlify/functions/progress-bar?value=75&color=%2310B981&bg=%23E5E7EB" alt="75% Progress">
+        </div>
+
+        <div class="test-item">
+            <div class="test-label">95% Progress</div>
+            <div class="test-description">Near complete - BOTH edges should be rounded ✅</div>
+            <img src="/.netlify/functions/progress-bar?value=95&color=%2310B981&bg=%23E5E7EB" alt="95% Progress">
+        </div>
+
+        <div class="test-item">
+            <div class="test-label">100% Progress</div>
+            <div class="test-description">Complete - both edges rounded ✅</div>
+            <img src="/.netlify/functions/progress-bar?value=100&color=%2310B981&bg=%23E5E7EB" alt="100% Progress">
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Gradient Progress Bars</h2>
+        
+        <div class="test-item">
+            <div class="test-label">5% Gradient (Blue to Purple)</div>
+            <div class="test-description">Low gradient progress with smart rounding</div>
+            <img src="/.netlify/functions/progress-bar?value=5&color=%233B82F6,%238B5CF6&bg=%23E5E7EB" alt="5% Gradient">
+        </div>
+
+        <div class="test-item">
+            <div class="test-label">60% Gradient (Blue to Purple to Pink)</div>
+            <div class="test-description">Multi-color gradient</div>
+            <img src="/.netlify/functions/progress-bar?value=60&color=%233B82F6,%238B5CF6,%23EC4899&bg=%23E5E7EB" alt="60% Gradient">
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Segmented Progress Bars</h2>
+        
+        <div class="test-item">
+            <div class="test-label">10 Segments at 35%</div>
+            <div class="test-description">Segmented bar with smart rounding per segment</div>
+            <img src="/.netlify/functions/progress-bar?value=35&color=%233B82F6&segments=10&gap=6&bg=%23E5E7EB" alt="Segmented 35%">
+        </div>
+
+        <div class="test-item">
+            <div class="test-label">10 Segments at 70% (Gradient)</div>
+            <div class="test-description">Multi-color gradient across segments</div>
+            <img src="/.netlify/functions/progress-bar?value=70&color=%233B82F6,%238B5CF6,%23EC4899&segments=10&gap=6&bg=%23E5E7EB" alt="Segmented Gradient">
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🆕 Multi-Value Progress Bars</h2>
+        
+        <div class="test-item">
+            <div class="test-label">Three Sections (30% Blue, 25% Green, 15% Orange)</div>
+            <div class="test-description">Stacked sections with different colors - <code>values=30:#3B82F6,25:#10B981,15:#F59E0B</code></div>
+            <img src="/.netlify/functions/progress-bar?values=30:%233B82F6,25:%2310B981,15:%23F59E0B&bg=%23E5E7EB" alt="Multi-value 3 sections">
+        </div>
+
+        <div class="test-item">
+            <div class="test-label">Two Sections (40% Purple, 35% Pink)</div>
+            <div class="test-description">Two colored sections - <code>values=40:#8B5CF6,35:#EC4899</code></div>
+            <img src="/.netlify/functions/progress-bar?values=40:%238B5CF6,35:%23EC4899&bg=%23E5E7EB" alt="Multi-value 2 sections">
+        </div>
+
+        <div class="test-item">
+            <div class="test-label">Four Sections (Red, Orange, Yellow, Green)</div>
+            <div class="test-description">Four colored sections like a traffic light progression</div>
+            <img src="/.netlify/functions/progress-bar?values=20:%23EF4444,20:%23F59E0B,20:%23EAB308,20:%2310B981&bg=%23E5E7EB" alt="Multi-value 4 sections">
+        </div>
+
+        <div class="test-item">
+            <div class="test-label">Small Multi-Value Sections (5% + 3%)</div>
+            <div class="test-description">Testing smart rounding with very small sections</div>
+            <img src="/.netlify/functions/progress-bar?values=5:%233B82F6,3:%2310B981&bg=%23E5E7EB" alt="Small multi-value">
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Different Aspect Ratios</h2>
+        
+        <div class="test-item">
+            <div class="test-label">Thin Bar (8:1 ratio) at 15%</div>
+            <div class="test-description">Testing smart rounding on thinner bars</div>
+            <img src="/.netlify/functions/progress-bar?value=15&color=%233B82F6&aspectRatio=8&bg=%23E5E7EB" alt="Thin bar">
+        </div>
+
+        <div class="test-item">
+            <div class="test-label">Thick Bar (2:1 ratio) at 15%</div>
+            <div class="test-description">Testing smart rounding on thicker bars</div>
+            <img src="/.netlify/functions/progress-bar?value=15&color=%233B82F6&aspectRatio=2&bg=%23E5E7EB" alt="Thick bar">
+        </div>
+    </div>
+</body>
+</html>

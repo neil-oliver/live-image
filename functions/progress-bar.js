@@ -18,6 +18,30 @@ const progressBarHandler = async (event, context) => {
     const segments = Math.max(1, Math.min(50, parseInt(queryParams.segments) || 1)); // Number of segments
     const gap = Math.max(0, Math.min(20, parseInt(queryParams.gap) || 4)); // Gap between segments
     
+    // Multi-value support: allows creating stacked progress sections with different colors
+    // Format: values=30:#FF0000,20:#00FF00,10:#0000FF (value:color pairs)
+    let multiValues = null;
+    if (queryParams.values) {
+        try {
+            multiValues = [];
+            const pairs = queryParams.values.split(',');
+            for (const pair of pairs) {
+                const [val, col] = pair.split(':');
+                const parsedValue = parseFloat(val);
+                const parsedColor = col || '#3B82F6';
+                if (!isNaN(parsedValue) && parsedValue > 0) {
+                    multiValues.push({ value: parsedValue, color: parsedColor });
+                }
+            }
+            // If we didn't parse any valid values, set to null
+            if (multiValues.length === 0) {
+                multiValues = null;
+            }
+        } catch (e) {
+            multiValues = null;
+        }
+    }
+    
     // Parse colors - can be single color or comma-separated list
     let colors = [];
     if (colorParam.includes(',')) {
@@ -141,7 +165,7 @@ const progressBarHandler = async (event, context) => {
         const fullSegments = Math.floor(value / progressPerSegment);
         const partialSegmentProgress = (value % progressPerSegment) / progressPerSegment;
         
-        // Render each segment
+        // Render each segment with smart rounding
         for (let i = 0; i < segments; i++) {
             const segmentX = padding + (i * (segmentWidth + gap));
             
@@ -161,27 +185,56 @@ const progressBarHandler = async (event, context) => {
                 const segmentColor = getColorFromGradient(colors, segmentPositionPercent);
                 
                 // Determine border radius for this segment
-                // For segmented bars, each segment has independent rounded corners
-                let segmentRadius = 0;
+                let baseSegmentRadius = 0;
                 
                 if (radius !== null) {
                     // Custom radius specified
-                    segmentRadius = Math.min(radius, barHeight / 2, segmentWidth / 2);
+                    baseSegmentRadius = Math.min(radius, barHeight / 2, segmentWidth / 2);
                 } else {
                     // Auto radius (fully rounded for each segment)
-                    segmentRadius = Math.min(barHeight / 2, segmentWidth / 2);
+                    baseSegmentRadius = Math.min(barHeight / 2, segmentWidth / 2);
                 }
                 
-                // Determine if this is a full or partial segment fill
+                // Smart rounding logic for professional appearance:
+                // - First filled segment: round left edge only
+                // - Middle filled segments: no rounding
+                // - Last filled segment: round right edge only if it's full
+                const isFirstFilledSegment = i === 0 || (i > 0 && i <= fullSegments);
                 const isFullSegment = segmentFillWidth >= segmentWidth * 0.99; // Allow small floating point errors
-                const rightRadius = isFullSegment ? segmentRadius : 0; // Only round right corners if fully filled
+                const isLastFilledSegment = (i === fullSegments);
+                
+                let leftRadius = 0;
+                let rightRadius = 0;
+                
+                // Only round edges that are "terminal" (at the start or end of the filled region)
+                if (i === 0) {
+                    // First segment in the bar - round left
+                    leftRadius = baseSegmentRadius;
+                }
+                
+                if (isLastFilledSegment && isFullSegment) {
+                    // Last filled segment and it's full - round right
+                    rightRadius = baseSegmentRadius;
+                }
                 
                 // Ensure radii don't exceed available space
-                const actualLeftRadius = Math.min(segmentRadius, segmentFillWidth / 2, barHeight / 2);
+                const actualLeftRadius = Math.min(leftRadius, segmentFillWidth / 2, barHeight / 2);
                 const actualRightRadius = Math.min(rightRadius, segmentFillWidth / 2, barHeight / 2);
                 
-                // Generate rect with border radius (simpler than path for most cases)
-                if (actualLeftRadius === actualRightRadius) {
+                // Generate path or rect based on rounding needs
+                if (actualLeftRadius === 0 && actualRightRadius === 0) {
+                    // No rounding - use simple rect
+                    segmentElements += `
+                        <rect 
+                            x="${segmentX}" 
+                            y="${barY}" 
+                            width="${segmentFillWidth}" 
+                            height="${barHeight}" 
+                            fill="${segmentColor}" 
+                            stroke="none"
+                        />
+                    `;
+                } else if (actualLeftRadius === actualRightRadius && actualLeftRadius > 0) {
                     // Uniform radius - use simple rect
                     segmentElements += `
                         <rect 
@@ -196,17 +249,22 @@ const progressBarHandler = async (event, context) => {
                         />
                     `;
                 } else {
-                    // Different radii on left/right - use path for more control
+                    // Different radii on left/right - use path for selective rounding
+                    const x1 = segmentX;
+                    const x2 = segmentX + segmentFillWidth;
+                    const y1 = barY;
+                    const y2 = barY + barHeight;
+                    
                     const pathD = `
-                        M ${segmentX + actualLeftRadius},${barY}
-                        L ${segmentX + segmentFillWidth - actualRightRadius},${barY}
-                        ${actualRightRadius > 0 ? `Q ${segmentX + segmentFillWidth},${barY} ${segmentX + segmentFillWidth},${barY + actualRightRadius}` : ''}
-                        L ${segmentX + segmentFillWidth},${barY + barHeight - actualRightRadius}
-                        ${actualRightRadius > 0 ? `Q ${segmentX + segmentFillWidth},${barY + barHeight} ${segmentX + segmentFillWidth - actualRightRadius},${barY + barHeight}` : ''}
-                        L ${segmentX + actualLeftRadius},${barY + barHeight}
-                        ${actualLeftRadius > 0 ? `Q ${segmentX},${barY + barHeight} ${segmentX},${barY + barHeight - actualLeftRadius}` : ''}
-                        L ${segmentX},${barY + actualLeftRadius}
-                        ${actualLeftRadius > 0 ? `Q ${segmentX},${barY} ${segmentX + actualLeftRadius},${barY}` : ''}
+                        M ${x1 + actualLeftRadius},${y1}
+                        L ${x2 - actualRightRadius},${y1}
+                        ${actualRightRadius > 0 ? `Q ${x2},${y1} ${x2},${y1 + actualRightRadius}` : `L ${x2},${y1}`}
+                        L ${x2},${y2 - actualRightRadius}
+                        ${actualRightRadius > 0 ? `Q ${x2},${y2} ${x2 - actualRightRadius},${y2}` : `L ${x2},${y2}`}
+                        L ${x1 + actualLeftRadius},${y2}
+                        ${actualLeftRadius > 0 ? `Q ${x1},${y2} ${x1},${y2 - actualLeftRadius}` : `L ${x1},${y2}`}
+                        L ${x1},${y1 + actualLeftRadius}
+                        ${actualLeftRadius > 0 ? `Q ${x1},${y1} ${x1 + actualLeftRadius},${y1}` : `L ${x1},${y1}`}
                         Z
                     `;
                     
@@ -273,8 +331,191 @@ const progressBarHandler = async (event, context) => {
             };
         }
     }
+    
+    // Multi-value progress bar rendering (stacked sections with different colors)
+    if (multiValues && multiValues.length > 0 && segments === 1) {
+        // Calculate total value and validate
+        let totalValue = 0;
+        for (const section of multiValues) {
+            totalValue += section.value;
+        }
+        
+        // Cap total at 100%
+        totalValue = Math.min(totalValue, 100);
+        
+        // Render each section
+        let sectionElements = '';
+        let currentX = padding;
+        
+        for (let i = 0; i < multiValues.length; i++) {
+            const section = multiValues[i];
+            const sectionWidth = (section.value / 100) * (width - (padding * 2));
+            
+            if (sectionWidth > 0) {
+                // Validate color
+                const colorRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+                const sectionColor = colorRegex.test(section.color) ? section.color : '#3B82F6';
+                
+                // Smart rounding: only round terminal edges
+                let leftRadius = 0;
+                let rightRadius = 0;
+                
+                if (i === 0) {
+                    // First section - round left edge
+                    leftRadius = borderRadius;
+                }
+                
+                if (i === multiValues.length - 1 || currentX + sectionWidth >= width - padding - 1) {
+                    // Last section or reaches the end - round right edge
+                    rightRadius = borderRadius;
+                }
+                
+                // Ensure radii don't exceed available space
+                const actualLeftRadius = Math.min(leftRadius, sectionWidth / 2, barHeight / 2);
+                const actualRightRadius = Math.min(rightRadius, sectionWidth / 2, barHeight / 2);
+                
+                // Generate path or rect based on rounding needs
+                if (actualLeftRadius === 0 && actualRightRadius === 0) {
+                    // No rounding - use simple rect
+                    sectionElements += `
+                        <rect 
+                            x="${currentX}" 
+                            y="${barY}" 
+                            width="${sectionWidth}" 
+                            height="${barHeight}" 
+                            fill="${sectionColor}" 
+                            stroke="none"
+                        />
+                    `;
+                } else if (actualLeftRadius === actualRightRadius && actualLeftRadius > 0) {
+                    // Uniform radius - use simple rect
+                    sectionElements += `
+                        <rect 
+                            x="${currentX}" 
+                            y="${barY}" 
+                            width="${sectionWidth}" 
+                            height="${barHeight}" 
+                            rx="${actualLeftRadius}" 
+                            ry="${actualLeftRadius}" 
+                            fill="${sectionColor}" 
+                            stroke="none"
+                        />
+                    `;
+                } else {
+                    // Selective rounding - use path
+                    const x1 = currentX;
+                    const x2 = currentX + sectionWidth;
+                    const y1 = barY;
+                    const y2 = barY + barHeight;
+                    
+                    const pathD = `
+                        M ${x1 + actualLeftRadius},${y1}
+                        L ${x2 - actualRightRadius},${y1}
+                        ${actualRightRadius > 0 ? `Q ${x2},${y1} ${x2},${y1 + actualRightRadius}` : `L ${x2},${y1}`}
+                        L ${x2},${y2 - actualRightRadius}
+                        ${actualRightRadius > 0 ? `Q ${x2},${y2} ${x2 - actualRightRadius},${y2}` : `L ${x2},${y2}`}
+                        L ${x1 + actualLeftRadius},${y2}
+                        ${actualLeftRadius > 0 ? `Q ${x1},${y2} ${x1},${y2 - actualLeftRadius}` : `L ${x1},${y2}`}
+                        L ${x1},${y1 + actualLeftRadius}
+                        ${actualLeftRadius > 0 ? `Q ${x1},${y1} ${x1 + actualLeftRadius},${y1}` : `L ${x1},${y1}`}
+                        Z
+                    `;
+                    
+                    sectionElements += `
+                        <path d="${pathD.replace(/\s+/g, ' ').trim()}" fill="${sectionColor}" stroke="none" />
+                    `;
+                }
+                
+                currentX += sectionWidth;
+                
+                // Stop if we've reached the end of the bar
+                if (currentX >= width - padding) break;
+            }
+        }
+        
+        const svgImage = `
+            <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+                <!-- Background bar -->
+                <rect 
+                    x="${padding}" 
+                    y="${barY}" 
+                    width="${width - (padding * 2)}" 
+                    height="${barHeight}" 
+                    rx="${borderRadius}" 
+                    ry="${borderRadius}" 
+                    fill="${backgroundColorParam}" 
+                    stroke="none"
+                />
+                
+                <!-- Multi-value sections -->
+                ${sectionElements}
+            </svg>
+        `;
+        
+        try {
+            return {
+                statusCode: 200,
+                headers: {
+                    'Content-Type': 'image/svg+xml',
+                    'Cache-Control': 'public, max-age=2592000',
+                },
+                body: svgImage,
+            };
+        } catch (error) {
+            return {
+                statusCode: 500,
+                body: JSON.stringify({ error: 'Failed to generate multi-value progress bar SVG' }),
+            };
+        }
+    }
 
     // Original single-bar rendering (when segments === 1)
+    // Smart border radius: only round right edge when progress is nearly complete (>= 95%)
+    const shouldRoundRight = value >= 95;
+    const leftRadius = borderRadius;
+    const rightRadius = shouldRoundRight ? borderRadius : 0;
+    
+    // Build progress bar path with selective rounding
+    let progressPath = '';
+    if (progressWidth > 0) {
+        if (leftRadius === 0 && rightRadius === 0) {
+            // No rounding at all - use simple rect
+            progressPath = `<rect 
+                x="${padding}" 
+                y="${barY}" 
+                width="${progressWidth}" 
+                height="${barHeight}" 
+                fill="${hasGradient ? 'url(#gradProgress)' : currentColor}" 
+                stroke="none"
+            />`;
+        } else {
+            // Use path for selective corner rounding
+            // Calculate actual radii based on available space
+            const actualLeftRadius = Math.min(leftRadius, progressWidth / 2, barHeight / 2);
+            const actualRightRadius = Math.min(rightRadius, progressWidth / 2, barHeight / 2);
+            
+            const x1 = padding;
+            const x2 = padding + progressWidth;
+            const y1 = barY;
+            const y2 = barY + barHeight;
+            
+            const pathD = `
+                M ${x1 + actualLeftRadius},${y1}
+                L ${x2 - actualRightRadius},${y1}
+                ${actualRightRadius > 0 ? `Q ${x2},${y1} ${x2},${y1 + actualRightRadius}` : `L ${x2},${y1}`}
+                L ${x2},${y2 - actualRightRadius}
+                ${actualRightRadius > 0 ? `Q ${x2},${y2} ${x2 - actualRightRadius},${y2}` : `L ${x2},${y2}`}
+                L ${x1 + actualLeftRadius},${y2}
+                ${actualLeftRadius > 0 ? `Q ${x1},${y2} ${x1},${y2 - actualLeftRadius}` : `L ${x1},${y2}`}
+                L ${x1},${y1 + actualLeftRadius}
+                ${actualLeftRadius > 0 ? `Q ${x1},${y1} ${x1 + actualLeftRadius},${y1}` : `L ${x1},${y1}`}
+                Z
+            `;
+            
+            progressPath = `<path d="${pathD.replace(/\s+/g, ' ').trim()}" fill="${hasGradient ? 'url(#gradProgress)' : currentColor}" stroke="none" />`;
+        }
+    }
+    
     const svgImage = `
         <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
             ${hasGradient ? `
@@ -297,17 +538,8 @@ const progressBarHandler = async (event, context) => {
                 stroke="none"
             />
             
-            <!-- Progress bar (colored) -->
-            <rect 
-                x="${padding}" 
-                y="${barY}" 
-                width="${progressWidth}" 
-                height="${barHeight}" 
-                rx="${borderRadius}" 
-                ry="${borderRadius}" 
-                fill="${hasGradient ? 'url(#gradProgress)' : currentColor}" 
-                stroke="none"
-            />
+            <!-- Progress bar (colored) with smart rounding -->
+            ${progressPath}
         </svg>
     `;
 

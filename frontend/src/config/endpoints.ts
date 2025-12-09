@@ -147,7 +147,7 @@ export const endpoints: EndpointConfig[] = [
   {
     id: 'progress-bar',
     name: 'Progress Bar',
-    description: 'Horizontal progress bars with gradients',
+    description: 'Horizontal progress bars with gradients and multi-value support',
     path: '/progress-bar.svg',
     category: 'ui',
     parameters: [
@@ -166,6 +166,14 @@ export const endpoints: EndpointConfig[] = [
         type: 'multiColor',
         default: '#3B82F6',
         description: 'Progress bar color(s) - comma-separated for gradient'
+      },
+      {
+        name: 'values',
+        label: 'Multi-Value Sections',
+        type: 'text',
+        default: '',
+        placeholder: '30:#FF0000,20:#00FF00,10:#0000FF',
+        description: 'Stacked sections: value:color pairs (overrides value & color params)'
       },
       {
         name: 'bg',
@@ -234,10 +242,12 @@ export const endpoints: EndpointConfig[] = [
       }
     ],
     examples: [
+      { name: '5% Progress', value: 5, color: '#10B981' },
       { name: '75% Complete', value: 75, color: '#10B981' },
       { name: 'Gradient', value: 60, color: '#3B82F6,#8B5CF6,#EC4899' },
       { name: 'Warning', value: 30, color: '#F59E0B', bg: '#FEF3C7' },
-      { name: 'Segmented', value: 70, color: '#3B82F6,#8B5CF6,#EC4899', segments: 10, gap: 6 }
+      { name: 'Segmented', value: 70, color: '#3B82F6,#8B5CF6,#EC4899', segments: 10, gap: 6 },
+      { name: 'Multi-Value', values: '30:#3B82F6,25:#10B981,15:#F59E0B', value: '' }
     ]
   },
   {
