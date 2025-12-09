@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Value Zero Handling Test</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f9fafb;
+        }
+        h1 {
+            color: #111827;
+            margin-bottom: 10px;
+        }
+        .test-item {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .label {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 5px;
+        }
+        .description {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 10px;
+        }
+        .expected {
+            font-size: 13px;
+            color: #059669;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+        img {
+            display: block;
+            width: 100%;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            background: #f9fafb;
+        }
+        code {
+            background: #f3f4f6;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Multi-Value Zero Handling Test</h1>
+    <p style="color: #6b7280; margin-bottom: 30px;">Testing that zero values don't create invisible sections or mess up color mapping</p>
+
+    <div class="test-item">
+        <div class="label">Test 1: values=30,0,0 with 3 colors (Blue, Purple, Pink)</div>
+        <div class="description"><code>values=30,0,0&color=#3B82F6,#8B5CF6,#EC4899</code></div>
+        <div class="expected">✓ Expected: Only ONE blue section (30%), zeros ignored</div>
+        <img src="/.netlify/functions/progress-bar?values=30,0,0&color=%233B82F6,%238B5CF6,%23EC4899&bg=%23E5E7EB" alt="30,0,0">
+    </div>
+
+    <div class="test-item">
+        <div class="label">Test 2: values=0,30,0 with 3 colors (Blue, Purple, Pink)</div>
+        <div class="description"><code>values=0,30,0&color=#3B82F6,#8B5CF6,#EC4899</code></div>
+        <div class="expected">✓ Expected: Only ONE purple section (30%), middle color used</div>
+        <img src="/.netlify/functions/progress-bar?values=0,30,0&color=%233B82F6,%238B5CF6,%23EC4899&bg=%23E5E7EB" alt="0,30,0">
+    </div>
+
+    <div class="test-item">
+        <div class="label">Test 3: values=0,0,30 with 3 colors (Blue, Purple, Pink)</div>
+        <div class="description"><code>values=0,0,30&color=#3B82F6,#8B5CF6,#EC4899</code></div>
+        <div class="expected">✓ Expected: Only ONE pink section (30%), last color used</div>
+        <img src="/.netlify/functions/progress-bar?values=0,0,30&color=%233B82F6,%238B5CF6,%23EC4899&bg=%23E5E7EB" alt="0,0,30">
+    </div>
+
+    <div class="test-item">
+        <div class="label">Test 4: values=30,20,0 with 3 colors (Blue, Purple, Pink)</div>
+        <div class="description"><code>values=30,20,0&color=#3B82F6,#8B5CF6,#EC4899</code></div>
+        <div class="expected">✓ Expected: TWO sections - blue (30%) then purple (20%)</div>
+        <img src="/.netlify/functions/progress-bar?values=30,20,0&color=%233B82F6,%238B5CF6,%23EC4899&bg=%23E5E7EB" alt="30,20,0">
+    </div>
+
+    <div class="test-item">
+        <div class="label">Test 5: values=30,0,15 with 3 colors (Blue, Purple, Pink)</div>
+        <div class="description"><code>values=30,0,15&color=#3B82F6,#8B5CF6,#EC4899</code></div>
+        <div class="expected">✓ Expected: TWO sections - blue (30%) then pink (15%), purple skipped</div>
+        <img src="/.netlify/functions/progress-bar?values=30,0,15&color=%233B82F6,%238B5CF6,%23EC4899&bg=%23E5E7EB" alt="30,0,15">
+    </div>
+
+    <div class="test-item">
+        <div class="label">Test 6: values=0,25,20,0,10 with 3 colors (cycling)</div>
+        <div class="description"><code>values=0,25,20,0,10&color=#3B82F6,#10B981,#F59E0B</code></div>
+        <div class="expected">✓ Expected: THREE sections - green (25%), orange (20%), blue (10%)</div>
+        <div class="expected">Colors should be: position 2→green, position 3→blue (cycles), position 5→orange (cycles)</div>
+        <img src="/.netlify/functions/progress-bar?values=0,25,20,0,10&color=%233B82F6,%2310B981,%23F59E0B&bg=%23E5E7EB" alt="0,25,20,0,10">
+    </div>
+
+    <div class="test-item">
+        <div class="label">Test 7: values=20,20,20 with 3 colors (equal sections)</div>
+        <div class="description"><code>values=20,20,20&color=#3B82F6,#10B981,#F59E0B</code></div>
+        <div class="expected">✓ Expected: THREE equal sections - blue, green, orange</div>
+        <img src="/.netlify/functions/progress-bar?values=20,20,20&color=%233B82F6,%2310B981,%23F59E0B&bg=%23E5E7EB" alt="20,20,20">
+    </div>
+
+    <div class="test-item">
+        <div class="label">Test 8: Single value=30 (no commas) - should NOT be multi-value</div>
+        <div class="description"><code>value=30&color=#3B82F6,#10B981,#F59E0B</code></div>
+        <div class="expected">✓ Expected: Single bar with gradient (NOT multi-value)</div>
+        <img src="/.netlify/functions/progress-bar?value=30&color=%233B82F6,%2310B981,%23F59E0B&bg=%23E5E7EB" alt="single value">
+    </div>
+</body>
+</html>
