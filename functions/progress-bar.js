@@ -18,19 +18,43 @@ const progressBarHandler = async (event, context) => {
     const segments = Math.max(1, Math.min(50, parseInt(queryParams.segments) || 1)); // Number of segments
     const gap = Math.max(0, Math.min(20, parseInt(queryParams.gap) || 4)); // Gap between segments
     
+    // Parse colors - can be single color or comma-separated list
+    let colors = [];
+    if (colorParam.includes(',')) {
+        // Multiple colors provided
+        colors = colorParam.split(',').map(c => c.trim());
+    } else {
+        // Single color provided
+        colors = [colorParam];
+    }
+    
     // Multi-value support: allows creating stacked progress sections with different colors
-    // Format: values=30:#FF0000,20:#00FF00,10:#0000FF (value:color pairs)
+    // Format: values=30,20,10 (uses colors from the color parameter in order)
+    // Also supports legacy format: values=30:#FF0000,20:#00FF00,10:#0000FF (value:color pairs)
     let multiValues = null;
     if (queryParams.values) {
         try {
             multiValues = [];
             const pairs = queryParams.values.split(',');
-            for (const pair of pairs) {
-                const [val, col] = pair.split(':');
-                const parsedValue = parseFloat(val);
-                const parsedColor = col || '#3B82F6';
-                if (!isNaN(parsedValue) && parsedValue > 0) {
-                    multiValues.push({ value: parsedValue, color: parsedColor });
+            for (let i = 0; i < pairs.length; i++) {
+                const pair = pairs[i].trim();
+                
+                // Check if this is the legacy format (value:color)
+                if (pair.includes(':')) {
+                    const [val, col] = pair.split(':');
+                    const parsedValue = parseFloat(val);
+                    const parsedColor = col || '#3B82F6';
+                    if (!isNaN(parsedValue) && parsedValue > 0) {
+                        multiValues.push({ value: parsedValue, color: parsedColor });
+                    }
+                } else {
+                    // New simplified format (just values, use colors from color parameter)
+                    const parsedValue = parseFloat(pair);
+                    if (!isNaN(parsedValue) && parsedValue > 0) {
+                        // Use corresponding color from colors array, or cycle through if not enough colors
+                        const colorIndex = i % colors.length;
+                        multiValues.push({ value: parsedValue, color: colors[colorIndex] });
+                    }
                 }
             }
             // If we didn't parse any valid values, set to null
@@ -40,16 +64,6 @@ const progressBarHandler = async (event, context) => {
         } catch (e) {
             multiValues = null;
         }
-    }
-    
-    // Parse colors - can be single color or comma-separated list
-    let colors = [];
-    if (colorParam.includes(',')) {
-        // Multiple colors provided
-        colors = colorParam.split(',').map(c => c.trim());
-    } else {
-        // Single color provided
-        colors = [colorParam];
     }
     
     // Validate all colors

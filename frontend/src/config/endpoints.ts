@@ -172,8 +172,8 @@ export const endpoints: EndpointConfig[] = [
         label: 'Multi-Value Sections',
         type: 'text',
         default: '',
-        placeholder: '30:#FF0000,20:#00FF00,10:#0000FF',
-        description: 'Stacked sections: value:color pairs (overrides value & color params)'
+        placeholder: '30,20,10',
+        description: 'Stacked section values (uses colors from Color field in order)'
       },
       {
         name: 'bg',
@@ -247,7 +247,7 @@ export const endpoints: EndpointConfig[] = [
       { name: 'Gradient', value: 60, color: '#3B82F6,#8B5CF6,#EC4899' },
       { name: 'Warning', value: 30, color: '#F59E0B', bg: '#FEF3C7' },
       { name: 'Segmented', value: 70, color: '#3B82F6,#8B5CF6,#EC4899', segments: 10, gap: 6 },
-      { name: 'Multi-Value', values: '30:#3B82F6,25:#10B981,15:#F59E0B', value: '' }
+      { name: 'Multi-Value', values: '30,25,15', color: '#3B82F6,#10B981,#F59E0B' }
     ]
   },
   {

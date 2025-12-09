@@ -36,23 +36,27 @@ Added support for stacked progress sections with different colors, perfect for s
 
 **Usage:**
 ```
-?values=30:#3B82F6,25:#10B981,15:#F59E0B
+?values=30,25,15&color=#3B82F6,#10B981,#F59E0B
 ```
 
-Each value:color pair represents a section:
-- Value: percentage of the bar (0-100)
-- Color: hex color code for that section
+Each value represents a section percentage, and colors are taken from the `color` parameter in order:
+- Value 1 (30%): uses first color (#3B82F6 - blue)
+- Value 2 (25%): uses second color (#10B981 - green)
+- Value 3 (15%): uses third color (#F59E0B - orange)
 
 **Features:**
+- Simplified format: just provide values, colors come from the color parameter
 - Sections stack left-to-right
 - Smart rounding applied (first section rounded left, last section rounded right)
 - Total capped at 100%
-- Automatically validates colors and falls back to default blue
+- If there are more values than colors, colors cycle/repeat
+- Legacy format still supported: `values=30:#3B82F6,25:#10B981` (value:color pairs)
 
 **Example use cases:**
 - Project progress by phase (planning: 30%, development: 40%, testing: 20%)
 - Resource allocation (CPU: 25%, memory: 35%, disk: 15%)
 - Survey results (agree: 40%, neutral: 30%, disagree: 10%)
+- Learning progress (completed: 50%, in-progress: 25%)
 
 ### 4. Frontend Integration
 
@@ -123,10 +127,13 @@ To test locally:
 ### New Parameter
 
 **`values`** (string, optional)
-- Format: `value:color,value:color,...`
-- Example: `30:#3B82F6,25:#10B981,15:#F59E0B`
-- When provided, overrides `value` and `color` parameters
+- Format: `value,value,value` (simplified - uses colors from `color` parameter)
+- Legacy format: `value:color,value:color` (still supported)
+- Example: `30,25,15` with `color=#3B82F6,#10B981,#F59E0B`
+- When provided, overrides `value` parameter
 - Creates stacked sections with different colors
+- Colors are taken from the `color` parameter in order
+- If more values than colors, colors cycle/repeat
 
 ### Backward Compatibility
 
@@ -163,13 +170,13 @@ All existing URLs and implementations continue to work without changes. The smar
 
 ```
 // Project phases
-?values=30:#3B82F6,40:#10B981,20:#F59E0B
+?values=30,40,20&color=#3B82F6,#10B981,#F59E0B
 
 // Survey results  
-?values=45:#10B981,30:#6B7280,15:#EF4444
+?values=45,30,15&color=#10B981,#6B7280,#EF4444
 
 // Resource usage
-?values=25:#8B5CF6,35:#EC4899,15:#F59E0B
+?values=25,35,15&color=#8B5CF6,#EC4899,#F59E0B
 ```
 
 ## Files Modified

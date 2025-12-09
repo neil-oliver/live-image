@@ -54,15 +54,15 @@ Basic progress bar:
 
 ### Two Sections
 ```
-/progress-bar.svg?values=40:%238B5CF6,35:%23EC4899
+/progress-bar.svg?values=40,35&color=%238B5CF6,%23EC4899
 ```
-- First section: 40% in purple
-- Second section: 35% in pink
+- First section: 40% in purple (first color)
+- Second section: 35% in pink (second color)
 - Total: 75% filled
 
 ### Three Sections (Task Progress)
 ```
-/progress-bar.svg?values=30:%233B82F6,40:%2310B981,20:%23F59E0B
+/progress-bar.svg?values=30,40,20&color=%233B82F6,%2310B981,%23F59E0B
 ```
 - Planning: 30% blue
 - Development: 40% green  
@@ -71,7 +71,7 @@ Basic progress bar:
 
 ### Four Sections (Resource Allocation)
 ```
-/progress-bar.svg?values=25:%23EF4444,20:%23F59E0B,30:%23EAB308,15:%2310B981
+/progress-bar.svg?values=25,20,30,15&color=%23EF4444,%23F59E0B,%23EAB308,%2310B981
 ```
 - CPU: 25% red
 - Memory: 20% orange
@@ -107,30 +107,30 @@ Basic progress bar:
 
 ### GitHub Contributions
 ```
-/progress-bar.svg?values=40:%2310B981,30:%2334D399,20:%236EE7B7&bg=%23E5E7EB
+/progress-bar.svg?values=40,30,20&color=%2310B981,%2334D399,%236EE7B7&bg=%23E5E7EB
 ```
 
 ### Survey Results
 ```
-/progress-bar.svg?values=45:%2310B981,30:%236B7280,15:%23EF4444
+/progress-bar.svg?values=45,30,15&color=%2310B981,%236B7280,%23EF4444
 // Agree: 45%, Neutral: 30%, Disagree: 15%
 ```
 
 ### Project Milestones
 ```
-/progress-bar.svg?values=25:%233B82F6,35:%238B5CF6,20:%23EC4899,10:%23F472B6
+/progress-bar.svg?values=25,35,20,10&color=%233B82F6,%238B5CF6,%23EC4899,%23F472B6
 // Phase 1-4 progress
 ```
 
 ### Learning Progress
 ```
-/progress-bar.svg?values=50:%2310B981,25:%23F59E0B&segments=10&gap=4
+/progress-bar.svg?values=50,25&color=%2310B981,%23F59E0B&segments=10&gap=4
 // Completed: 50%, In Progress: 25%
 ```
 
 ### Storage Usage
 ```
-/progress-bar.svg?values=35:%23EF4444,25:%23F59E0B,20:%23EAB308
+/progress-bar.svg?values=35,25,20&color=%23EF4444,%23F59E0B,%23EAB308
 // Critical: 35%, Warning: 25%, Normal: 20%
 ```
 
