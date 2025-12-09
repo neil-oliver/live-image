@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Left Edge Corner Radius Test</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f9fafb;
+        }
+        h1 {
+            color: #111827;
+            margin-bottom: 10px;
+        }
+        .test-item {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .label {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 10px;
+        }
+        img {
+            display: block;
+            width: 100%;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            background: #f9fafb;
+        }
+    </style>
+</head>
+<body>
+    <h1>Left Edge Corner Radius Test</h1>
+    <p style="color: #6b7280; margin-bottom: 30px;">Testing the left edge rounding at various progress values</p>
+
+    <div class="test-item">
+        <div class="label">1% Progress - Left edge should be perfectly rounded</div>
+        <img src="/.netlify/functions/progress-bar?value=1&color=%233B82F6&bg=%23E5E7EB" alt="1%">
+    </div>
+
+    <div class="test-item">
+        <div class="label">3% Progress - Left edge should be perfectly rounded</div>
+        <img src="/.netlify/functions/progress-bar?value=3&color=%233B82F6&bg=%23E5E7EB" alt="3%">
+    </div>
+
+    <div class="test-item">
+        <div class="label">5% Progress - Left edge should be perfectly rounded</div>
+        <img src="/.netlify/functions/progress-bar?value=5&color=%233B82F6&bg=%23E5E7EB" alt="5%">
+    </div>
+
+    <div class="test-item">
+        <div class="label">10% Progress - Left edge should be perfectly rounded</div>
+        <img src="/.netlify/functions/progress-bar?value=10&color=%2310B981&bg=%23E5E7EB" alt="10%">
+    </div>
+
+    <div class="test-item">
+        <div class="label">25% Progress - Left edge should be perfectly rounded</div>
+        <img src="/.netlify/functions/progress-bar?value=25&color=%238B5CF6&bg=%23E5E7EB" alt="25%">
+    </div>
+
+    <div class="test-item">
+        <div class="label">50% Progress - Left edge should be perfectly rounded</div>
+        <img src="/.netlify/functions/progress-bar?value=50&color=%23EC4899&bg=%23E5E7EB" alt="50%">
+    </div>
+
+    <div class="test-item">
+        <div class="label">Thin Bar (8:1) at 5% - Left edge should be perfectly rounded</div>
+        <img src="/.netlify/functions/progress-bar?value=5&color=%233B82F6&bg=%23E5E7EB&aspectRatio=8" alt="Thin 5%">
+    </div>
+
+    <div class="test-item">
+        <div class="label">Thick Bar (2:1) at 5% - Left edge should be perfectly rounded</div>
+        <img src="/.netlify/functions/progress-bar?value=5&color=%233B82F6&bg=%23E5E7EB&aspectRatio=2" alt="Thick 5%">
+    </div>
+
+    <div class="test-item">
+        <div class="label">Gradient at 5% - Left edge should be perfectly rounded</div>
+        <img src="/.netlify/functions/progress-bar?value=5&color=%233B82F6,%238B5CF6,%23EC4899&bg=%23E5E7EB" alt="Gradient 5%">
+    </div>
+</body>
+</html>

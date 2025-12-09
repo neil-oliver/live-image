@@ -488,9 +488,47 @@ const progressBarHandler = async (event, context) => {
                 fill="${hasGradient ? 'url(#gradProgress)' : currentColor}" 
                 stroke="none"
             />`;
+        } else if (leftRadius > 0 && rightRadius === 0) {
+            // Only left side rounded - use rect with rx/ry clipped on right
+            // For very small progress, we need special handling
+            const actualLeftRadius = Math.min(leftRadius, barHeight / 2);
+            
+            if (progressWidth < actualLeftRadius * 2) {
+                // Progress is too narrow for full radius - use a circle/semi-circle approach
+                const centerX = padding + progressWidth / 2;
+                const radiusX = Math.min(progressWidth / 2, barHeight / 2);
+                const radiusY = barHeight / 2;
+                
+                progressPath = `<ellipse 
+                    cx="${centerX}" 
+                    cy="${barY + barHeight / 2}" 
+                    rx="${radiusX}" 
+                    ry="${radiusY}" 
+                    fill="${hasGradient ? 'url(#gradProgress)' : currentColor}" 
+                    stroke="none"
+                />`;
+            } else {
+                // Use path with left rounding only
+                const x1 = padding;
+                const x2 = padding + progressWidth;
+                const y1 = barY;
+                const y2 = barY + barHeight;
+                
+                const pathD = `
+                    M ${x1 + actualLeftRadius},${y1}
+                    L ${x2},${y1}
+                    L ${x2},${y2}
+                    L ${x1 + actualLeftRadius},${y2}
+                    Q ${x1},${y2} ${x1},${y2 - actualLeftRadius}
+                    L ${x1},${y1 + actualLeftRadius}
+                    Q ${x1},${y1} ${x1 + actualLeftRadius},${y1}
+                    Z
+                `;
+                
+                progressPath = `<path d="${pathD.replace(/\s+/g, ' ').trim()}" fill="${hasGradient ? 'url(#gradProgress)' : currentColor}" stroke="none" />`;
+            }
         } else {
-            // Use path for selective corner rounding
-            // Calculate actual radii based on available space
+            // Both sides rounded or other cases - use full path logic
             const actualLeftRadius = Math.min(leftRadius, progressWidth / 2, barHeight / 2);
             const actualRightRadius = Math.min(rightRadius, progressWidth / 2, barHeight / 2);
             
@@ -506,9 +544,9 @@ const progressBarHandler = async (event, context) => {
                 L ${x2},${y2 - actualRightRadius}
                 ${actualRightRadius > 0 ? `Q ${x2},${y2} ${x2 - actualRightRadius},${y2}` : `L ${x2},${y2}`}
                 L ${x1 + actualLeftRadius},${y2}
-                ${actualLeftRadius > 0 ? `Q ${x1},${y2} ${x1},${y2 - actualLeftRadius}` : `L ${x1},${y2}`}
+                Q ${x1},${y2} ${x1},${y2 - actualLeftRadius}
                 L ${x1},${y1 + actualLeftRadius}
-                ${actualLeftRadius > 0 ? `Q ${x1},${y1} ${x1 + actualLeftRadius},${y1}` : `L ${x1},${y1}`}
+                Q ${x1},${y1} ${x1 + actualLeftRadius},${y1}
                 Z
             `;
             
