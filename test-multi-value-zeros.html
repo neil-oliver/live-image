@@ -109,7 +109,14 @@
     </div>
 
     <div class="test-item">
-        <div class="label">Test 8: Single value=30 (no commas) - should NOT be multi-value</div>
+        <div class="label">Test 8: values=0,0,0 (all zeros) - should show EMPTY bar</div>
+        <div class="description"><code>values=0,0,0&color=#3B82F6,#10B981,#F59E0B</code></div>
+        <div class="expected">✓ Expected: EMPTY bar (no progress fill, only background)</div>
+        <img src="/.netlify/functions/progress-bar?values=0,0,0&color=%233B82F6,%2310B981,%23F59E0B&bg=%23E5E7EB" alt="all zeros">
+    </div>
+
+    <div class="test-item">
+        <div class="label">Test 9: Single value=30 (no commas) - should NOT be multi-value</div>
         <div class="description"><code>value=30&color=#3B82F6,#10B981,#F59E0B</code></div>
         <div class="expected">✓ Expected: Single bar with gradient (NOT multi-value)</div>
         <img src="/.netlify/functions/progress-bar?value=30&color=%233B82F6,%2310B981,%23F59E0B&bg=%23E5E7EB" alt="single value">

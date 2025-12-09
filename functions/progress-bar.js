@@ -6,6 +6,7 @@ const progressBarHandler = async (event, context) => {
     const queryParams = event.queryStringParameters || {};
     
     // Extract parameters with defaults
+    // Note: If 'values' is provided, we'll ignore the 'value' parameter
     const value = Math.max(0, Math.min(100, queryParams.value !== undefined ? parseFloat(queryParams.value) : 50)); // 0-100, default 50
     const colorParam = queryParams.color || '#3B82F6'; // Default blue color
     const backgroundColorParam = queryParams.bg || queryParams.bgColor || '#E5E7EB'; // Remaining track color
@@ -17,6 +18,9 @@ const progressBarHandler = async (event, context) => {
     const radius = queryParams.radius ? parseInt(queryParams.radius) : null; // null = auto (fully rounded)
     const segments = Math.max(1, Math.min(50, parseInt(queryParams.segments) || 1)); // Number of segments
     const gap = Math.max(0, Math.min(20, parseInt(queryParams.gap) || 4)); // Gap between segments
+    
+    // Check if values parameter was explicitly provided (even if empty or all zeros)
+    const valuesProvided = queryParams.values !== undefined;
     
     // Parse colors - can be single color or comma-separated list
     let colors = [];
@@ -347,7 +351,45 @@ const progressBarHandler = async (event, context) => {
     }
     
     // Multi-value progress bar rendering (stacked sections with different colors)
-    if (multiValues && multiValues.length > 0 && segments === 1) {
+    // If values parameter was provided but resulted in no valid sections (all zeros), render empty bar
+    if (valuesProvided && segments === 1) {
+        if (!multiValues || multiValues.length === 0) {
+            // Values parameter was provided but all values were zero or invalid
+            // Render just the background bar (empty progress)
+            const svgImage = `
+                <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Background bar -->
+                    <rect 
+                        x="${padding}" 
+                        y="${barY}" 
+                        width="${width - (padding * 2)}" 
+                        height="${barHeight}" 
+                        rx="${borderRadius}" 
+                        ry="${borderRadius}" 
+                        fill="${backgroundColorParam}" 
+                        stroke="none"
+                    />
+                </svg>
+            `;
+            
+            try {
+                return {
+                    statusCode: 200,
+                    headers: {
+                        'Content-Type': 'image/svg+xml',
+                        'Cache-Control': 'public, max-age=2592000',
+                    },
+                    body: svgImage,
+                };
+            } catch (error) {
+                return {
+                    statusCode: 500,
+                    body: JSON.stringify({ error: 'Failed to generate empty progress bar SVG' }),
+                };
+            }
+        }
+        
+        // Valid multi-value sections exist, render them
         // Calculate total value and validate
         let totalValue = 0;
         for (const section of multiValues) {
