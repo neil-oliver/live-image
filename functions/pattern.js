@@ -226,17 +226,64 @@ function createCheckerboard(width, height, color1, color2, thickness) {
  * Create depth overlay gradient with multiply blend for better color preservation
  */
 function createDepthOverlay(width, height, direction, opacity) {
-    // Convert direction to SVG gradient coordinates
-    const coords = getGradientCoordinates(direction);
+    let gradientDef = '';
     
-    // Use white-to-black gradient with multiply blend mode
-    // This darkens while preserving color vibrancy better than simple black overlay
-    const defs = `
-        <linearGradient id="depthGradient" x1="${coords.x1}" y1="${coords.y1}" x2="${coords.x2}" y2="${coords.y2}">
-            <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:0"/>
-            <stop offset="100%" style="stop-color:#000000;stop-opacity:${opacity}"/>
-        </linearGradient>
-    `;
+    // Handle different gradient types
+    switch (direction.toLowerCase()) {
+        case 'radial-out':
+            // Light center, dark edges (vignette effect)
+            gradientDef = `
+                <radialGradient id="depthGradient" cx="50%" cy="50%" r="70%">
+                    <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:0"/>
+                    <stop offset="100%" style="stop-color:#000000;stop-opacity:${opacity}"/>
+                </radialGradient>
+            `;
+            break;
+            
+        case 'radial-in':
+            // Dark center, light edges
+            gradientDef = `
+                <radialGradient id="depthGradient" cx="50%" cy="50%" r="70%">
+                    <stop offset="0%" style="stop-color:#000000;stop-opacity:${opacity}"/>
+                    <stop offset="100%" style="stop-color:#FFFFFF;stop-opacity:0"/>
+                </radialGradient>
+            `;
+            break;
+            
+        case 'horizontal-center':
+            // Dark left/right edges, light middle
+            gradientDef = `
+                <linearGradient id="depthGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:#000000;stop-opacity:${opacity}"/>
+                    <stop offset="50%" style="stop-color:#FFFFFF;stop-opacity:0"/>
+                    <stop offset="100%" style="stop-color:#000000;stop-opacity:${opacity}"/>
+                </linearGradient>
+            `;
+            break;
+            
+        case 'vertical-center':
+            // Dark top/bottom edges, light middle
+            gradientDef = `
+                <linearGradient id="depthGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#000000;stop-opacity:${opacity}"/>
+                    <stop offset="50%" style="stop-color:#FFFFFF;stop-opacity:0"/>
+                    <stop offset="100%" style="stop-color:#000000;stop-opacity:${opacity}"/>
+                </linearGradient>
+            `;
+            break;
+            
+        default:
+            // Standard linear gradients
+            const coords = getGradientCoordinates(direction);
+            gradientDef = `
+                <linearGradient id="depthGradient" x1="${coords.x1}" y1="${coords.y1}" x2="${coords.x2}" y2="${coords.y2}">
+                    <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:0"/>
+                    <stop offset="100%" style="stop-color:#000000;stop-opacity:${opacity}"/>
+                </linearGradient>
+            `;
+    }
+    
+    const defs = gradientDef;
     
     // Create the gradient rect with multiply blend mode using CSS (widely supported)
     const overlay = `<rect width="${width}" height="${height}" fill="url(#depthGradient)" style="mix-blend-mode: multiply"/>`;

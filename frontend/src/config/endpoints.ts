@@ -189,7 +189,11 @@ export const endpoints: EndpointConfig[] = [
           { value: 'to bottom right', label: 'To Bottom Right' },
           { value: 'to bottom left', label: 'To Bottom Left' },
           { value: 'to top right', label: 'To Top Right' },
-          { value: 'to top left', label: 'To Top Left' }
+          { value: 'to top left', label: 'To Top Left' },
+          { value: 'radial-out', label: 'Radial Out (Vignette)' },
+          { value: 'radial-in', label: 'Radial In (Spotlight)' },
+          { value: 'horizontal-center', label: 'Horizontal Center' },
+          { value: 'vertical-center', label: 'Vertical Center' }
         ],
         description: 'Direction of the depth gradient'
       },
@@ -210,7 +214,8 @@ export const endpoints: EndpointConfig[] = [
       { name: 'Sunburst', type: 'sunburst', color1: '#7C3AED', color2: '#3B82F6', count: 24, rotation: 0 },
       { name: 'Concentric Rings', type: 'rings', color1: '#9333EA', color2: '#C084FC', thickness: 30 },
       { name: 'Checkerboard', type: 'checkerboard', color1: '#FBBF24', color2: '#3B82F6', thickness: 40 },
-      { name: 'With Depth', type: 'stripes', color1: '#D4A574', color2: '#F5E6D3', thickness: 40, depth: 'true', depthOpacity: 0.4 }
+      { name: 'With Depth', type: 'stripes', color1: '#D4A574', color2: '#F5E6D3', thickness: 40, depth: 'true', depthOpacity: 0.4 },
+      { name: 'Vignette Effect', type: 'sunburst', color1: '#7C3AED', color2: '#3B82F6', count: 24, depth: 'true', depthDirection: 'radial-out', depthOpacity: 0.5 }
     ]
   },
   {
