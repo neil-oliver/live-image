@@ -86,6 +86,134 @@ export const endpoints: EndpointConfig[] = [
     ]
   },
   {
+    id: 'pattern',
+    name: 'Pattern Background',
+    description: 'Generate decorative patterns (stripes, sunburst, rings, checkerboard) for backgrounds',
+    path: '/pattern.svg',
+    category: 'graphics',
+    parameters: [
+      {
+        name: 'type',
+        label: 'Pattern Type',
+        type: 'select',
+        default: 'stripes',
+        options: [
+          { value: 'stripes', label: 'Stripes' },
+          { value: 'sunburst', label: 'Sunburst' },
+          { value: 'rings', label: 'Rings' },
+          { value: 'checkerboard', label: 'Checkerboard' }
+        ],
+        description: 'Type of pattern to generate'
+      },
+      {
+        name: 'color1',
+        label: 'Primary Color',
+        type: 'color',
+        default: '#3B82F6',
+        description: 'Primary pattern color'
+      },
+      {
+        name: 'color2',
+        label: 'Secondary Color',
+        type: 'color',
+        default: '',
+        placeholder: 'Auto (lighter shade)',
+        description: 'Secondary color (auto-generated if empty)'
+      },
+      {
+        name: 'thickness',
+        label: 'Thickness',
+        type: 'number',
+        default: 20,
+        min: 5,
+        max: 200,
+        description: 'Pattern element size (stripe width, ring width, square size)'
+      },
+      {
+        name: 'count',
+        label: 'Ray Count',
+        type: 'number',
+        default: 16,
+        min: 4,
+        max: 60,
+        description: 'Number of rays (sunburst pattern only)'
+      },
+      {
+        name: 'rotation',
+        label: 'Rotation',
+        type: 'number',
+        default: 0,
+        min: 0,
+        max: 360,
+        description: 'Pattern rotation in degrees'
+      },
+      {
+        name: 'width',
+        label: 'Width',
+        type: 'number',
+        default: 800,
+        min: 1,
+        max: 3000,
+        description: 'Image width in pixels'
+      },
+      {
+        name: 'height',
+        label: 'Height',
+        type: 'number',
+        default: 600,
+        min: 1,
+        max: 3000,
+        description: 'Image height in pixels'
+      },
+      {
+        name: 'depth',
+        label: 'Enable Depth Effect',
+        type: 'select',
+        default: 'false',
+        options: [
+          { value: 'false', label: 'Off' },
+          { value: 'true', label: 'On' }
+        ],
+        description: 'Add gradient overlay for depth effect'
+      },
+      {
+        name: 'depthDirection',
+        label: 'Depth Direction',
+        type: 'select',
+        default: 'to bottom',
+        options: [
+          { value: 'to bottom', label: 'To Bottom' },
+          { value: 'to top', label: 'To Top' },
+          { value: 'to right', label: 'To Right' },
+          { value: 'to left', label: 'To Left' },
+          { value: 'to bottom right', label: 'To Bottom Right' },
+          { value: 'to bottom left', label: 'To Bottom Left' },
+          { value: 'to top right', label: 'To Top Right' },
+          { value: 'to top left', label: 'To Top Left' }
+        ],
+        description: 'Direction of the depth gradient'
+      },
+      {
+        name: 'depthOpacity',
+        label: 'Depth Opacity',
+        type: 'number',
+        default: 0.3,
+        min: 0,
+        max: 1,
+        step: 0.05,
+        description: 'Opacity of the depth overlay'
+      }
+    ],
+    examples: [
+      { name: 'Vertical Stripes', type: 'stripes', color1: '#D4A574', color2: '#F5E6D3', thickness: 40, rotation: 0 },
+      { name: 'Diagonal Stripes', type: 'stripes', color1: '#8B5CF6', color2: '#C4B5FD', thickness: 30, rotation: 45 },
+      { name: 'Sunburst', type: 'sunburst', color1: '#7C3AED', color2: '#3B82F6', count: 24, rotation: 0 },
+      { name: 'Concentric Rings', type: 'rings', color1: '#9333EA', color2: '#C084FC', thickness: 30 },
+      { name: 'Checkerboard', type: 'checkerboard', color1: '#FBBF24', color2: '#3B82F6', thickness: 40 },
+      { name: 'With Depth', type: 'stripes', color1: '#D4A574', color2: '#F5E6D3', thickness: 40, depth: 'true', depthOpacity: 0.4 }
+    ]
+  },
+  {
     id: 'gradient',
     name: 'Gradient',
     description: 'Generate linear gradients with custom colors and directions',
