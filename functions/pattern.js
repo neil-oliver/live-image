@@ -223,20 +223,29 @@ function createCheckerboard(width, height, color1, color2, thickness) {
 }
 
 /**
- * Create depth overlay gradient
+ * Create depth overlay gradient with multiply blend for better color preservation
  */
 function createDepthOverlay(width, height, direction, opacity) {
     // Convert direction to SVG gradient coordinates
     const coords = getGradientCoordinates(direction);
     
+    // Use white-to-black gradient with multiply blend mode
+    // This darkens while preserving color vibrancy better than simple black overlay
     const defs = `
         <linearGradient id="depthGradient" x1="${coords.x1}" y1="${coords.y1}" x2="${coords.x2}" y2="${coords.y2}">
-            <stop offset="0%" style="stop-color:#000000;stop-opacity:0"/>
+            <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:0"/>
             <stop offset="100%" style="stop-color:#000000;stop-opacity:${opacity}"/>
         </linearGradient>
+        <filter id="multiplyBlend">
+            <feFlood flood-color="#000000" result="flood"/>
+            <feImage xlink:href="#depthRect" result="gradient"/>
+            <feComposite in="gradient" in2="SourceGraphic" operator="in" result="gradientMasked"/>
+            <feBlend in="gradientMasked" in2="SourceGraphic" mode="multiply"/>
+        </filter>
     `;
     
-    const overlay = `<rect width="${width}" height="${height}" fill="url(#depthGradient)"/>`;
+    // Create the gradient rect with multiply blend mode using CSS (widely supported)
+    const overlay = `<rect id="depthRect" width="${width}" height="${height}" fill="url(#depthGradient)" style="mix-blend-mode: multiply"/>`;
     
     return { defs, overlay };
 }
