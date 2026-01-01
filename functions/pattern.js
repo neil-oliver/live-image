@@ -119,9 +119,15 @@ function createStripes(width, height, color1, color2, thickness, rotation) {
     
     // Calculate diagonal to ensure pattern covers rotated area
     const diagonal = Math.sqrt(width * width + height * height);
-    const offset = (diagonal - Math.max(width, height)) / 2;
+    
+    // Center the oversized rectangle on the viewport center
+    const cx = width / 2;
+    const cy = height / 2;
     
     const defs = `
+        <clipPath id="viewport">
+            <rect width="${width}" height="${height}"/>
+        </clipPath>
         <pattern id="stripes" patternUnits="userSpaceOnUse" width="${patternWidth}" height="${patternWidth}">
             <rect width="${stripeWidth}" height="${patternWidth}" fill="${color1}"/>
             <rect x="${stripeWidth}" width="${stripeWidth}" height="${patternWidth}" fill="${color2}"/>
@@ -129,8 +135,10 @@ function createStripes(width, height, color1, color2, thickness, rotation) {
     `;
     
     const content = `
-        <g transform="rotate(${rotation}, ${width/2}, ${height/2})">
-            <rect x="${-offset}" y="${-offset}" width="${diagonal}" height="${diagonal}" fill="url(#stripes)"/>
+        <g clip-path="url(#viewport)">
+            <g transform="rotate(${rotation}, ${cx}, ${cy})">
+                <rect x="${cx - diagonal}" y="${cy - diagonal}" width="${diagonal * 2}" height="${diagonal * 2}" fill="url(#stripes)"/>
+            </g>
         </g>
     `;
     
