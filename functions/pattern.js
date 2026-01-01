@@ -236,16 +236,10 @@ function createDepthOverlay(width, height, direction, opacity) {
             <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:0"/>
             <stop offset="100%" style="stop-color:#000000;stop-opacity:${opacity}"/>
         </linearGradient>
-        <filter id="multiplyBlend">
-            <feFlood flood-color="#000000" result="flood"/>
-            <feImage xlink:href="#depthRect" result="gradient"/>
-            <feComposite in="gradient" in2="SourceGraphic" operator="in" result="gradientMasked"/>
-            <feBlend in="gradientMasked" in2="SourceGraphic" mode="multiply"/>
-        </filter>
     `;
     
     // Create the gradient rect with multiply blend mode using CSS (widely supported)
-    const overlay = `<rect id="depthRect" width="${width}" height="${height}" fill="url(#depthGradient)" style="mix-blend-mode: multiply"/>`;
+    const overlay = `<rect width="${width}" height="${height}" fill="url(#depthGradient)" style="mix-blend-mode: multiply"/>`;
     
     return { defs, overlay };
 }
