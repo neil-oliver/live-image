@@ -32,3 +32,14 @@ export function downloadFile(url: string, filename: string) {
   document.body.removeChild(link);
 }
 
+// Fetch SVG and convert to base64 data URL
+export async function fetchAsDataUrl(url: string): Promise<string> {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch image: ${response.status}`);
+  }
+  const svgContent = await response.text();
+  const base64 = btoa(unescape(encodeURIComponent(svgContent)));
+  return `data:image/svg+xml;base64,${base64}`;
+}
+
