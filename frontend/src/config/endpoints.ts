@@ -762,6 +762,60 @@ export const endpoints: EndpointConfig[] = [
     ]
   },
   {
+    id: 'notification',
+    name: 'Notification Bell',
+    description: 'Bell icon with a notification count badge',
+    path: '/notification.svg',
+    category: 'ui',
+    parameters: [
+      {
+        name: 'count',
+        label: 'Count',
+        type: 'number',
+        default: 3,
+        min: 0,
+        max: 999,
+        description: 'Number of notifications to display'
+      },
+      {
+        name: 'size',
+        label: 'Size',
+        type: 'number',
+        default: 64,
+        min: 16,
+        max: 512,
+        description: 'Icon size in pixels'
+      },
+      {
+        name: 'bellColor',
+        label: 'Bell Color',
+        type: 'color',
+        default: '#E6E6E6',
+        description: 'Fill color of the bell icon'
+      },
+      {
+        name: 'badgeColor',
+        label: 'Badge Color',
+        type: 'color',
+        default: '#FF4242',
+        description: 'Background color of the count circle'
+      },
+      {
+        name: 'textColor',
+        label: 'Text Color',
+        type: 'color',
+        default: '#E6E6E6',
+        description: 'Color of the number inside the badge'
+      }
+    ],
+    examples: [
+      { name: '3 Notifications', count: 3, size: 64 },
+      { name: 'No Notifications', count: 0, size: 64 },
+      { name: 'Many Notifications', count: 99, size: 64, badgeColor: '#EF4444' },
+      { name: 'Custom Colors', count: 5, bellColor: '#3B82F6', badgeColor: '#F59E0B', textColor: '#FFFFFF' }
+    ]
+  },
+  {
     id: 'user-card',
     name: 'User Card',
     description: 'User profile cards with avatar, name, and details',

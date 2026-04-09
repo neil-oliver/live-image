@@ -60,3 +60,8 @@
   from = "/pattern.svg"
   to = "/.netlify/functions/pattern"
   status = 200
+
+[[redirects]]
+  from = "/notification.svg"
+  to = "/.netlify/functions/notification"
+  status = 200
